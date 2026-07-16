@@ -9,38 +9,348 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TrackingRouteImport } from './routes/tracking'
+import { Route as SearchRouteImport } from './routes/search'
+import { Route as RequestRouteImport } from './routes/request'
+import { Route as RateRouteImport } from './routes/rate'
+import { Route as ProposalsRouteImport } from './routes/proposals'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ProRouteImport } from './routes/pro'
+import { Route as PaymentRouteImport } from './routes/payment'
+import { Route as OrdersRouteImport } from './routes/orders'
+import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as HomeRouteImport } from './routes/home'
+import { Route as ConfirmRouteImport } from './routes/confirm'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProIndexRouteImport } from './routes/pro.index'
+import { Route as ProScheduleRouteImport } from './routes/pro.schedule'
+import { Route as ProProfileRouteImport } from './routes/pro.profile'
+import { Route as ProOrdersRouteImport } from './routes/pro.orders'
 
+const TrackingRoute = TrackingRouteImport.update({
+  id: '/tracking',
+  path: '/tracking',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RequestRoute = RequestRouteImport.update({
+  id: '/request',
+  path: '/request',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RateRoute = RateRouteImport.update({
+  id: '/rate',
+  path: '/rate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProposalsRoute = ProposalsRouteImport.update({
+  id: '/proposals',
+  path: '/proposals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProRoute = ProRouteImport.update({
+  id: '/pro',
+  path: '/pro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentRoute = PaymentRouteImport.update({
+  id: '/payment',
+  path: '/payment',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersRoute = OrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfirmRoute = ConfirmRouteImport.update({
+  id: '/confirm',
+  path: '/confirm',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProIndexRoute = ProIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProRoute,
+} as any)
+const ProScheduleRoute = ProScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => ProRoute,
+} as any)
+const ProProfileRoute = ProProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => ProRoute,
+} as any)
+const ProOrdersRoute = ProOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => ProRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/confirm': typeof ConfirmRoute
+  '/home': typeof HomeRoute
+  '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
+  '/orders': typeof OrdersRoute
+  '/payment': typeof PaymentRoute
+  '/pro': typeof ProRouteWithChildren
+  '/profile': typeof ProfileRoute
+  '/proposals': typeof ProposalsRoute
+  '/rate': typeof RateRoute
+  '/request': typeof RequestRoute
+  '/search': typeof SearchRoute
+  '/tracking': typeof TrackingRoute
+  '/pro/orders': typeof ProOrdersRoute
+  '/pro/profile': typeof ProProfileRoute
+  '/pro/schedule': typeof ProScheduleRoute
+  '/pro/': typeof ProIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/confirm': typeof ConfirmRoute
+  '/home': typeof HomeRoute
+  '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
+  '/orders': typeof OrdersRoute
+  '/payment': typeof PaymentRoute
+  '/profile': typeof ProfileRoute
+  '/proposals': typeof ProposalsRoute
+  '/rate': typeof RateRoute
+  '/request': typeof RequestRoute
+  '/search': typeof SearchRoute
+  '/tracking': typeof TrackingRoute
+  '/pro/orders': typeof ProOrdersRoute
+  '/pro/profile': typeof ProProfileRoute
+  '/pro/schedule': typeof ProScheduleRoute
+  '/pro': typeof ProIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/confirm': typeof ConfirmRoute
+  '/home': typeof HomeRoute
+  '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
+  '/orders': typeof OrdersRoute
+  '/payment': typeof PaymentRoute
+  '/pro': typeof ProRouteWithChildren
+  '/profile': typeof ProfileRoute
+  '/proposals': typeof ProposalsRoute
+  '/rate': typeof RateRoute
+  '/request': typeof RequestRoute
+  '/search': typeof SearchRoute
+  '/tracking': typeof TrackingRoute
+  '/pro/orders': typeof ProOrdersRoute
+  '/pro/profile': typeof ProProfileRoute
+  '/pro/schedule': typeof ProScheduleRoute
+  '/pro/': typeof ProIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/confirm'
+    | '/home'
+    | '/login'
+    | '/messages'
+    | '/orders'
+    | '/payment'
+    | '/pro'
+    | '/profile'
+    | '/proposals'
+    | '/rate'
+    | '/request'
+    | '/search'
+    | '/tracking'
+    | '/pro/orders'
+    | '/pro/profile'
+    | '/pro/schedule'
+    | '/pro/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/confirm'
+    | '/home'
+    | '/login'
+    | '/messages'
+    | '/orders'
+    | '/payment'
+    | '/profile'
+    | '/proposals'
+    | '/rate'
+    | '/request'
+    | '/search'
+    | '/tracking'
+    | '/pro/orders'
+    | '/pro/profile'
+    | '/pro/schedule'
+    | '/pro'
+  id:
+    | '__root__'
+    | '/'
+    | '/confirm'
+    | '/home'
+    | '/login'
+    | '/messages'
+    | '/orders'
+    | '/payment'
+    | '/pro'
+    | '/profile'
+    | '/proposals'
+    | '/rate'
+    | '/request'
+    | '/search'
+    | '/tracking'
+    | '/pro/orders'
+    | '/pro/profile'
+    | '/pro/schedule'
+    | '/pro/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConfirmRoute: typeof ConfirmRoute
+  HomeRoute: typeof HomeRoute
+  LoginRoute: typeof LoginRoute
+  MessagesRoute: typeof MessagesRoute
+  OrdersRoute: typeof OrdersRoute
+  PaymentRoute: typeof PaymentRoute
+  ProRoute: typeof ProRouteWithChildren
+  ProfileRoute: typeof ProfileRoute
+  ProposalsRoute: typeof ProposalsRoute
+  RateRoute: typeof RateRoute
+  RequestRoute: typeof RequestRoute
+  SearchRoute: typeof SearchRoute
+  TrackingRoute: typeof TrackingRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tracking': {
+      id: '/tracking'
+      path: '/tracking'
+      fullPath: '/tracking'
+      preLoaderRoute: typeof TrackingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/request': {
+      id: '/request'
+      path: '/request'
+      fullPath: '/request'
+      preLoaderRoute: typeof RequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rate': {
+      id: '/rate'
+      path: '/rate'
+      fullPath: '/rate'
+      preLoaderRoute: typeof RateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/proposals': {
+      id: '/proposals'
+      path: '/proposals'
+      fullPath: '/proposals'
+      preLoaderRoute: typeof ProposalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pro': {
+      id: '/pro'
+      path: '/pro'
+      fullPath: '/pro'
+      preLoaderRoute: typeof ProRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment': {
+      id: '/payment'
+      path: '/payment'
+      fullPath: '/payment'
+      preLoaderRoute: typeof PaymentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders': {
+      id: '/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof OrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confirm': {
+      id: '/confirm'
+      path: '/confirm'
+      fullPath: '/confirm'
+      preLoaderRoute: typeof ConfirmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +358,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pro/': {
+      id: '/pro/'
+      path: '/'
+      fullPath: '/pro/'
+      preLoaderRoute: typeof ProIndexRouteImport
+      parentRoute: typeof ProRoute
+    }
+    '/pro/schedule': {
+      id: '/pro/schedule'
+      path: '/schedule'
+      fullPath: '/pro/schedule'
+      preLoaderRoute: typeof ProScheduleRouteImport
+      parentRoute: typeof ProRoute
+    }
+    '/pro/profile': {
+      id: '/pro/profile'
+      path: '/profile'
+      fullPath: '/pro/profile'
+      preLoaderRoute: typeof ProProfileRouteImport
+      parentRoute: typeof ProRoute
+    }
+    '/pro/orders': {
+      id: '/pro/orders'
+      path: '/orders'
+      fullPath: '/pro/orders'
+      preLoaderRoute: typeof ProOrdersRouteImport
+      parentRoute: typeof ProRoute
+    }
   }
 }
 
+interface ProRouteChildren {
+  ProOrdersRoute: typeof ProOrdersRoute
+  ProProfileRoute: typeof ProProfileRoute
+  ProScheduleRoute: typeof ProScheduleRoute
+  ProIndexRoute: typeof ProIndexRoute
+}
+
+const ProRouteChildren: ProRouteChildren = {
+  ProOrdersRoute: ProOrdersRoute,
+  ProProfileRoute: ProProfileRoute,
+  ProScheduleRoute: ProScheduleRoute,
+  ProIndexRoute: ProIndexRoute,
+}
+
+const ProRouteWithChildren = ProRoute._addFileChildren(ProRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConfirmRoute: ConfirmRoute,
+  HomeRoute: HomeRoute,
+  LoginRoute: LoginRoute,
+  MessagesRoute: MessagesRoute,
+  OrdersRoute: OrdersRoute,
+  PaymentRoute: PaymentRoute,
+  ProRoute: ProRouteWithChildren,
+  ProfileRoute: ProfileRoute,
+  ProposalsRoute: ProposalsRoute,
+  RateRoute: RateRoute,
+  RequestRoute: RequestRoute,
+  SearchRoute: SearchRoute,
+  TrackingRoute: TrackingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
