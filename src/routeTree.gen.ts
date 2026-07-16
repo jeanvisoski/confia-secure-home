@@ -16,6 +16,7 @@ import { Route as RateRouteImport } from './routes/rate'
 import { Route as ProposalsRouteImport } from './routes/proposals'
 import { Route as PaymentRouteImport } from './routes/payment'
 import { Route as OrdersRouteImport } from './routes/orders'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as ConfirmRouteImport } from './routes/confirm'
@@ -56,6 +57,11 @@ const OrdersRoute = OrdersRouteImport.update({
   path: '/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/confirm': typeof ConfirmRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/payment': typeof PaymentRoute
   '/proposals': typeof ProposalsRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/confirm': typeof ConfirmRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/payment': typeof PaymentRoute
   '/proposals': typeof ProposalsRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/confirm': typeof ConfirmRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/payment': typeof PaymentRoute
   '/proposals': typeof ProposalsRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/confirm'
     | '/home'
     | '/login'
+    | '/messages'
     | '/orders'
     | '/payment'
     | '/proposals'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/confirm'
     | '/home'
     | '/login'
+    | '/messages'
     | '/orders'
     | '/payment'
     | '/proposals'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/confirm'
     | '/home'
     | '/login'
+    | '/messages'
     | '/orders'
     | '/payment'
     | '/proposals'
@@ -164,6 +176,7 @@ export interface RootRouteChildren {
   ConfirmRoute: typeof ConfirmRoute
   HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
+  MessagesRoute: typeof MessagesRoute
   OrdersRoute: typeof OrdersRoute
   PaymentRoute: typeof PaymentRoute
   ProposalsRoute: typeof ProposalsRoute
@@ -224,6 +237,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -260,6 +280,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfirmRoute: ConfirmRoute,
   HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
+  MessagesRoute: MessagesRoute,
   OrdersRoute: OrdersRoute,
   PaymentRoute: PaymentRoute,
   ProposalsRoute: ProposalsRoute,
