@@ -24,6 +24,7 @@ import { Route as HomeRouteImport } from './routes/home'
 import { Route as ConfirmRouteImport } from './routes/confirm'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProIndexRouteImport } from './routes/pro.index'
+import { Route as ProOrdersRouteImport } from './routes/pro.orders'
 
 const TrackingRoute = TrackingRouteImport.update({
   id: '/tracking',
@@ -100,6 +101,11 @@ const ProIndexRoute = ProIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ProRoute,
 } as any)
+const ProOrdersRoute = ProOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => ProRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/request': typeof RequestRoute
   '/search': typeof SearchRoute
   '/tracking': typeof TrackingRoute
+  '/pro/orders': typeof ProOrdersRoute
   '/pro/': typeof ProIndexRoute
 }
 export interface FileRoutesByTo {
@@ -132,6 +139,7 @@ export interface FileRoutesByTo {
   '/request': typeof RequestRoute
   '/search': typeof SearchRoute
   '/tracking': typeof TrackingRoute
+  '/pro/orders': typeof ProOrdersRoute
   '/pro': typeof ProIndexRoute
 }
 export interface FileRoutesById {
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   '/request': typeof RequestRoute
   '/search': typeof SearchRoute
   '/tracking': typeof TrackingRoute
+  '/pro/orders': typeof ProOrdersRoute
   '/pro/': typeof ProIndexRoute
 }
 export interface FileRouteTypes {
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/request'
     | '/search'
     | '/tracking'
+    | '/pro/orders'
     | '/pro/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
     | '/request'
     | '/search'
     | '/tracking'
+    | '/pro/orders'
     | '/pro'
   id:
     | '__root__'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/request'
     | '/search'
     | '/tracking'
+    | '/pro/orders'
     | '/pro/'
   fileRoutesById: FileRoutesById
 }
@@ -329,14 +341,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProIndexRouteImport
       parentRoute: typeof ProRoute
     }
+    '/pro/orders': {
+      id: '/pro/orders'
+      path: '/orders'
+      fullPath: '/pro/orders'
+      preLoaderRoute: typeof ProOrdersRouteImport
+      parentRoute: typeof ProRoute
+    }
   }
 }
 
 interface ProRouteChildren {
+  ProOrdersRoute: typeof ProOrdersRoute
   ProIndexRoute: typeof ProIndexRoute
 }
 
 const ProRouteChildren: ProRouteChildren = {
+  ProOrdersRoute: ProOrdersRoute,
   ProIndexRoute: ProIndexRoute,
 }
 
