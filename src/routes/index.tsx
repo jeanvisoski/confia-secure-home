@@ -51,7 +51,7 @@ function Onboarding() {
           className="flex-1 flex flex-col items-center justify-center text-center animate-float-up"
         >
           <div className={`h-56 w-56 rounded-[40%] bg-gradient-to-br ${S.tint} flex items-center justify-center shadow-float mb-10 overflow-hidden`}>
-            <BrandLogo variant="full" className="h-full w-full scale-[1.25]" />
+            <BrandLogo variant="full" className="h-full w-full" />
           </div>
           <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-3">
             {S.eyebrow}

@@ -3,44 +3,22 @@ type BrandLogoProps = {
   variant?: "mark" | "full" | "lockup";
 };
 
-/** Logo oficial BicoJá. A imagem fica em public para estar disponível em todas as rotas. */
+/** Marca BICOJA: o arquivo possui area transparente para nunca cortar o simbolo. */
 export function BrandLogo({ className = "", variant = "mark" }: BrandLogoProps) {
-  if (variant === "full") {
-    return (
-      <img
-        src="/bicaja-logo.png"
-        alt="BicoJá"
-        className={`object-contain ${className}`}
-      />
-    );
-  }
-
   if (variant === "lockup") {
     return (
-      <span
-        aria-label="BicoJá"
-        className={`relative inline-flex shrink-0 overflow-hidden ${className}`}
-      >
-        <img
-          src="/bicaja-logo.png"
-          alt="BicoJá"
-          className="absolute left-1/2 top-[-27%] h-[220%] w-auto max-w-none -translate-x-1/2 object-contain"
-        />
+      <span aria-label="BICOJA" className={`inline-flex shrink-0 flex-col items-center justify-center gap-1 ${className}`}>
+        <img src="/bicoja-mark.png" alt="" aria-hidden="true" className="min-h-0 max-h-[76%] w-auto max-w-full object-contain" />
+        <span className="font-[Manrope] text-[0.63em] font-extrabold leading-none tracking-[0.08em] text-primary">BICOJA</span>
       </span>
     );
   }
 
   return (
-    <span
-      aria-label="BicoJá"
-      className={`relative inline-flex shrink-0 overflow-hidden rounded-xl bg-slate-800 ${className}`}
-    >
-      <img
-        src="/bicaja-logo.png"
-        alt=""
-        aria-hidden="true"
-        className="absolute h-[210%] w-[210%] max-w-none object-cover left-[-55%] top-[-8%]"
-      />
-    </span>
+    <img
+      src="/bicoja-mark.png"
+      alt="BICOJA"
+      className={`shrink-0 object-contain ${className}`}
+    />
   );
 }
