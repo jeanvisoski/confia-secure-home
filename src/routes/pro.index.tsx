@@ -146,7 +146,24 @@ function useMyProposalRequestIds(providerId: string | undefined) {
 type MyProviderOrder = {
   id: string;
   status: string;
-  service_requests: { service_categories: { label: string } | null } | null;
+  price: number;
+  total: number;
+  created_at: string;
+  service_requests: {
+    description: string;
+    urgency: string;
+    service_categories: { label: string } | null;
+    profiles: { full_name: string | null } | null;
+    addresses: { neighborhood: string | null; city: string | null; state: string | null } | null;
+  } | null;
+};
+
+const providerOrderStatusLabel: Record<string, string> = {
+  aceito: "Confirmado",
+  a_caminho: "A caminho",
+  executando: "Em execucao",
+  fotos_enviadas: "Aguardando cliente",
+  aguardando_confirmacao: "Aguardando cliente",
 };
 
 const PROVIDER_ACTIVE_STATUSES = [
@@ -163,7 +180,7 @@ function useMyProviderOrders(providerId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("id, status, service_requests(service_categories(label))")
+        .select("id, status, price, total, created_at, service_requests(description, urgency, service_categories(label), profiles(full_name), addresses(neighborhood, city, state))")
         .eq("provider_id", providerId)
         .in("status", PROVIDER_ACTIVE_STATUSES)
         .order("created_at", { ascending: false })
@@ -399,7 +416,15 @@ function ProDashboard() {
                     <p className="font-semibold text-sm truncate">
                       {o.service_requests?.service_categories?.label ?? "Serviço"}
                     </p>
-                    <p className="text-xs text-muted-foreground">{o.status}</p>
+                    <p className="text-xs text-foreground/80 line-clamp-2 mt-0.5">{o.service_requests?.description ?? "Detalhes indisponiveis"}</p>
+                    <p className="text-[11px] text-muted-foreground mt-1 truncate">
+                      {o.service_requests?.profiles?.full_name ?? "Cliente"}
+                      {o.service_requests?.addresses?.city ? ` • ${o.service_requests.addresses.neighborhood ? `${o.service_requests.addresses.neighborhood}, ` : ""}${o.service_requests.addresses.city}/${o.service_requests.addresses.state ?? ""}` : ""}
+                    </p>
+                    <div className="flex items-center justify-between gap-2 mt-1">
+                      <p className="text-[11px] text-primary font-medium">{providerOrderStatusLabel[o.status] ?? o.status}</p>
+                      <span className="text-[11px] font-bold text-primary">R$ {Number(o.price).toFixed(2)}</span>
+                    </div>
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </Link>
