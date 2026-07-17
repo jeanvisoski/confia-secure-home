@@ -10,6 +10,7 @@ import {
   DollarSign,
   ArrowRight,
   Camera,
+  Images,
   CalendarClock,
   Send,
   Inbox,
@@ -177,7 +178,8 @@ function ProOrder() {
   const [sending, setSending] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const libraryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const locationWatchRef = useRef<number | null>(null);
   const lastLocationSentRef = useRef(0);
 
@@ -473,15 +475,23 @@ function ProOrder() {
                 />
               </div>
               <input
-                ref={fileInputRef}
+                ref={libraryInputRef}
                 type="file"
                 accept="image/*"
                 className="hidden"
                 onChange={handlePickPhoto}
               />
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={handlePickPhoto}
+              />
               <div className="grid grid-cols-3 gap-2">
                 <button
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => cameraInputRef.current?.click()}
                   disabled={uploadingPhoto}
                   className="aspect-square rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-50"
                 >
@@ -489,6 +499,14 @@ function ProOrder() {
                   <span className="text-[11px] font-medium">
                     {uploadingPhoto ? "Enviando..." : "Foto do serviço"}
                   </span>
+                </button>
+                <button
+                  onClick={() => libraryInputRef.current?.click()}
+                  disabled={uploadingPhoto}
+                  className="aspect-square rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-50"
+                >
+                  <Images className="h-6 w-6" />
+                  <span className="text-[11px] font-medium">Biblioteca</span>
                 </button>
                 {photos.map((url) => (
                   <div key={url} className="aspect-square rounded-2xl overflow-hidden">
