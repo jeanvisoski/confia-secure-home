@@ -40,6 +40,8 @@ function useWalletTransactions(providerId: string | undefined) {
   return useQuery({
     queryKey: ["wallet-transactions", providerId],
     queryFn: async () => {
+      // Atualiza garantias vencidas ao abrir a carteira, mesmo em projetos sem pg_cron.
+      await supabase.rpc("release_due_guarantee_wallet_transactions");
       const { data, error } = await supabase
         .from("wallet_transactions")
         .select("id, type, amount, status, available_at, created_at, orders(service_requests(service_categories(label)))")

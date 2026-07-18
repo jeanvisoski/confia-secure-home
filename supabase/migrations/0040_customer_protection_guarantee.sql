@@ -143,8 +143,7 @@ begin
   return v_order.id;
 end; $$;
 
-do $$ begin
-  perform cron.unschedule('release-wallet-guarantees');
-exception when others then null; end $$;
-select cron.schedule('release-wallet-guarantees', '15 * * * *', $$select public.release_due_guarantee_wallet_transactions();$$);
+-- Alguns projetos Supabase nao disponibilizam pg_cron. A funcao acima tambem
+-- e chamada ao solicitar saque; assim nao dependemos de uma extensao opcional
+-- para liberar valores ja vencidos.
 notify pgrst, 'reload schema';
