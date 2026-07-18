@@ -44,6 +44,7 @@ type PaymentSettings = {
   payment_gateway: "mercado_pago";
   pix_enabled: boolean;
   card_enabled: boolean;
+  provider_guarantee_days?: number;
 };
 
 const HOMOLOGATION_SETTINGS: PaymentSettings = {
@@ -51,6 +52,7 @@ const HOMOLOGATION_SETTINGS: PaymentSettings = {
   payment_gateway: "mercado_pago",
   pix_enabled: true,
   card_enabled: true,
+  provider_guarantee_days: 7,
 };
 
 function usePaymentSettings() {
@@ -59,7 +61,7 @@ function usePaymentSettings() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("platform_settings")
-        .select("payment_mode, payment_gateway, pix_enabled, card_enabled")
+        .select("payment_mode, payment_gateway, pix_enabled, card_enabled, provider_guarantee_days")
         .eq("id", true)
         .single();
       // Mantem os testes funcionais enquanto o banco recebe a migration.

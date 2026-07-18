@@ -17,7 +17,7 @@ type WalletTransaction = {
   id: string;
   type: "credito_pendente" | "credito_liberado" | "saque";
   amount: number;
-  status: "pendente" | "disponivel" | "pago";
+  status: "pendente" | "em_garantia" | "disponivel" | "reservado" | "pago" | "congelado" | "reembolsado";
   available_at: string | null;
   created_at: string;
   orders: { service_requests: { service_categories: { label: string } | null } | null } | null;
@@ -66,7 +66,7 @@ function ProWallet() {
     .filter((transaction) => transaction.status === "disponivel")
     .reduce((sum, transaction) => sum + Number(transaction.amount), 0);
   const pending = transactions
-    .filter((transaction) => transaction.status === "pendente")
+    .filter((transaction) => transaction.status === "pendente" || transaction.status === "em_garantia" || transaction.status === "congelado")
     .reduce((sum, transaction) => sum + Number(transaction.amount), 0);
 
   async function saveDestination() {
@@ -116,12 +116,12 @@ function ProWallet() {
           <div className="space-y-2">
             {transactions.map((transaction) => {
               const isWithdrawal = transaction.type === "saque";
-              const pendingTransaction = transaction.status === "pendente";
-              const label = isWithdrawal ? "Saque" : pendingTransaction ? "Recebimento em processamento" : "Recebimento liberado";
+              const pendingTransaction = transaction.status === "pendente" || transaction.status === "em_garantia" || transaction.status === "congelado";
+              const label = isWithdrawal ? "Saque" : transaction.status === "em_garantia" ? "Em garantia ao cliente" : transaction.status === "congelado" ? "Bloqueado por disputa" : pendingTransaction ? "Recebimento em processamento" : "Recebimento liberado";
               return (
                 <div key={transaction.id} className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
                   <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${isWithdrawal ? "bg-rose-100 text-rose-700" : pendingTransaction ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}`}>{isWithdrawal ? <ArrowUpRight className="h-5 w-5" /> : pendingTransaction ? <Clock3 className="h-5 w-5" /> : <ArrowDownLeft className="h-5 w-5" />}</div>
-                  <div className="flex-1 min-w-0"><p className="text-sm font-semibold">{label}</p><p className="text-xs text-muted-foreground truncate">{transaction.orders?.service_requests?.service_categories?.label ?? new Date(transaction.created_at).toLocaleDateString("pt-BR")}</p></div>
+                  <div className="flex-1 min-w-0"><p className="text-sm font-semibold">{label}</p><p className="text-xs text-muted-foreground truncate">{transaction.orders?.service_requests?.service_categories?.label ?? new Date(transaction.created_at).toLocaleDateString("pt-BR")}</p>{transaction.status === "em_garantia" && transaction.available_at && <p className="text-[11px] text-amber-700 mt-1">Libera em {new Date(transaction.available_at).toLocaleDateString("pt-BR")}</p>}</div>
                   <p className={`text-sm font-bold ${isWithdrawal ? "text-rose-700" : "text-emerald-700"}`}>{isWithdrawal ? "−" : "+"} R$ {Number(transaction.amount).toFixed(2)}</p>
                 </div>
               );
