@@ -79,8 +79,10 @@ function Payment() {
   const { data: settings } = usePaymentSettings();
   const [paying, setPaying] = useState(false);
   const [method, setMethod] = useState<"pix" | "card">("pix");
-  // MVP em validacao: nenhum fluxo deve encaminhar para cobranca real.
-  const isHomologation = true;
+  // O ambiente e controlado pelo portal administrativo. Em homologação o
+  // pagamento é local; nos demais modos o checkout é criado pelo gateway.
+  const paymentMode = settings?.payment_mode ?? "homologacao";
+  const isHomologation = paymentMode === "homologacao";
 
   async function pay() {
     if (!orderId) return;
@@ -172,12 +174,14 @@ function Payment() {
             </button>
           </div>
           <p className="text-[11px] text-muted-foreground mt-2 px-1">
-            Gateway de pagamento real ainda não integrado — este passo apenas confirma o pedido.
+            {isHomologation
+              ? "Em homologação, o pagamento é simulado e nenhuma cobrança é criada."
+              : "Você será direcionado ao checkout seguro do Mercado Pago para concluir o pagamento."}
           </p>
         </div>
 
         <p className="text-[11px] text-primary font-medium mt-1 px-1">
-          {isHomologation ? "Homologacao: a aprovacao e simulada." : settings?.payment_mode === "sandbox" ? "Sandbox Mercado Pago: use credenciais e contas de teste." : "Producao: voce sera levado ao checkout Mercado Pago."}
+          {isHomologation ? "Homologação: a aprovação é simulada." : paymentMode === "sandbox" ? "Sandbox Mercado Pago: use a conta compradora e os meios de teste." : "Produção: você será levado ao checkout Mercado Pago."}
         </p>
 
         <div className="mt-6 rounded-2xl border border-border bg-trust-soft/40 p-5">
