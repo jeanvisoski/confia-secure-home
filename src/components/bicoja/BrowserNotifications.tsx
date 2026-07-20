@@ -22,7 +22,7 @@ export function BrowserNotifications() {
         const notification = payload.new as IncomingNotification;
         const registration = await navigator.serviceWorker?.ready;
         await registration?.showNotification(notification.title || "BICOJA", {
-          body: notification.body || "Voce recebeu uma atualizacao.", icon: "/bicoja-mark.png", badge: "/bicoja-mark.png",
+          body: notification.body || "Voce recebeu uma atualizacao.", icon: "/bicoja-mark.svg", badge: "/bicoja-mark.svg",
           data: { link: notification.link || "/notifications" },
         });
       })

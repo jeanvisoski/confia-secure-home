@@ -1,5 +1,5 @@
-const CACHE = "bicoja-static-v4";
-const ASSETS = ["/", "/manifest.webmanifest", "/bicoja-mark.png"];
+const CACHE = "bicoja-static-v5";
+const ASSETS = ["/", "/manifest.webmanifest", "/bicoja-mark.svg"];
 self.addEventListener("install", (event) => event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS))));
 self.addEventListener("activate", (event) => event.waitUntil(
   caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))
@@ -13,8 +13,8 @@ self.addEventListener("push", (event) => {
   const payload = event.data?.json?.() || {};
   event.waitUntil(self.registration.showNotification(payload.title || "BICOJA", {
     body: payload.body || "Voce recebeu uma atualizacao.",
-    icon: "/bicoja-mark.png",
-    badge: "/bicoja-mark.png",
+    icon: "/bicoja-mark.svg",
+    badge: "/bicoja-mark.svg",
     data: { link: payload.link || "/notifications" },
   }));
 });
