@@ -24,7 +24,7 @@ export function BottomNav({ variant = "client" }: { variant?: "client" | "pro" }
   const items = variant === "pro" ? proItems : clientItems;
   const path = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <nav className="sticky bottom-0 z-40 bg-card/95 backdrop-blur border-t border-border">
+    <nav className="sticky bottom-0 z-40 shrink-0 bg-card/95 backdrop-blur border-t border-border">
       <div className="grid grid-cols-5 px-1 pt-1.5 pb-2 safe-bottom">
         {items.map((it) => {
           const active = path === it.to || (it.to !== "/pro" && path.startsWith(it.to));
