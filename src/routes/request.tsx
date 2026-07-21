@@ -86,6 +86,7 @@ function RequestFlow() {
   const { data: preferredProvider } = usePreferredProvider(providerId);
   const { data: defaults } = useRequestDefaults(session?.user.id);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const locateAttemptRef = useRef(0);
 
   const [step, setStep] = useState(0);
   const [categoryId, setCategoryId] = useState<string | null>(null);
@@ -143,10 +144,12 @@ function RequestFlow() {
   }, [defaults, usingOtherAddress, street]);
 
   async function locateMe() {
+    const attempt = ++locateAttemptRef.current;
     setLocating(true);
     setLocateError(null);
     try {
       const found = await locateCurrentAddress();
+      if (attempt !== locateAttemptRef.current) return;
       setStreet(found.street);
       setNeighborhood(found.neighborhood);
       setCity(found.city);
@@ -155,11 +158,19 @@ function RequestFlow() {
       setLng(found.lng);
       setEditingAddress(true);
     } catch (err) {
+      if (attempt !== locateAttemptRef.current) return;
       setLocateError(
         err instanceof Error ? err.message : "Não foi possível obter sua localização.",
       );
     }
+    if (attempt === locateAttemptRef.current) setLocating(false);
+  }
+
+  function enterAddressManually() {
+    locateAttemptRef.current += 1;
     setLocating(false);
+    setLocateError(null);
+    setEditingAddress(true);
   }
 
   useEffect(() => {
@@ -432,9 +443,14 @@ function RequestFlow() {
               height={208}
             />
             {locating && (
-              <div className="mt-3 p-4 rounded-2xl bg-card border border-border flex items-center gap-3">
-                <LocateFixed className="h-5 w-5 text-primary animate-pulse" />
-                <p className="text-sm text-muted-foreground">Localizando você...</p>
+              <div className="mt-3 p-4 rounded-2xl bg-card border border-border flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <LocateFixed className="h-5 w-5 text-primary animate-pulse" />
+                  <p className="text-sm text-muted-foreground">Localizando você...</p>
+                </div>
+                <button type="button" onClick={enterAddressManually} className="shrink-0 text-primary text-xs font-semibold">
+                  Digitar endereço
+                </button>
               </div>
             )}
 
@@ -446,7 +462,7 @@ function RequestFlow() {
                     Tentar novamente
                   </button>
                   <button
-                    onClick={() => setEditingAddress(true)}
+                    onClick={enterAddressManually}
                     className="text-primary text-xs font-semibold"
                   >
                     Digitar endereço
