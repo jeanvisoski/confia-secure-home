@@ -16,7 +16,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SessionProvider, useSession } from "../lib/session-context";
 import { supabase } from "../lib/supabase";
 import { Toaster } from "../components/ui/sonner";
-import { BrowserNotifications } from "../components/bicoja/BrowserNotifications";
+import { AppErrorReporter } from "../components/bicoja/AppErrorReporter";
 
 const PUBLIC_PATHS = new Set(["/", "/login"]);
 
@@ -182,7 +182,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <SessionProvider>
         <AuthGate>
-          <BrowserNotifications />
+          <AppErrorReporter />
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
         </AuthGate>
