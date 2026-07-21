@@ -17,6 +17,7 @@ import { SessionProvider, useSession } from "../lib/session-context";
 import { supabase } from "../lib/supabase";
 import { Toaster } from "../components/ui/sonner";
 import { AppErrorReporter } from "../components/bicoja/AppErrorReporter";
+import { BrandLogo } from "../components/bicoja/BrandLogo";
 
 const PUBLIC_PATHS = new Set(["/", "/login"]);
 
@@ -49,7 +50,10 @@ function AuthGate({ children }: { children: ReactNode }) {
       });
   }, [session, navigate]);
 
-  if (!loading && !session && !isPublic) return null;
+  if (loading) {
+    return <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-5"><BrandLogo variant="full" className="h-28 w-28 animate-pulse" /><div className="h-1 w-20 overflow-hidden rounded-full bg-secondary"><div className="h-full w-1/2 rounded-full bg-primary animate-[pulse_1s_ease-in-out_infinite]" /></div></div>;
+  }
+  if (!session && !isPublic) return null;
   if (deactivated) return null;
   return <>{children}</>;
 }
