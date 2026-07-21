@@ -1,12 +1,13 @@
 {
-  "name": "BICOJÁ",
-  "short_name": "BICOJÁ",
+  "name": "bicojá",
+  "short_name": "bicojá",
   "description": "Serviços confiáveis perto de você.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F6F3EC",
+  "background_color": "#0F4C3A",
   "theme_color": "#0F4C3A",
   "icons": [
-    { "src": "/bicoja-mark.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "/bicoja-app-icon-512.png?v=1", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/bicoja-app-icon.svg?v=1", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ]
 }

@@ -146,6 +146,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/bicoja-mark.svg", type: "image/svg+xml" },
+      { rel: "apple-touch-icon", href: "/bicoja-app-icon-512.png?v=1", sizes: "512x512" },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
