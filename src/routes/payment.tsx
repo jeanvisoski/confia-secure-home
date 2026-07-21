@@ -78,7 +78,9 @@ function Payment() {
   const { data: order } = useOrder(orderId);
   const { data: settings } = usePaymentSettings();
   const [paying, setPaying] = useState(false);
-  const [method, setMethod] = useState<"pix" | "card">("pix");
+  // Cartão é apresentado como a primeira opção da tela. Mantê-lo como padrão
+  // evita criar uma preferência Pix quando o cliente apenas segue para pagar.
+  const [method, setMethod] = useState<"pix" | "card">("card");
   // O ambiente e controlado pelo portal administrativo. Em homologação o
   // pagamento é local; nos demais modos o checkout é criado pelo gateway.
   const paymentMode = settings?.payment_mode ?? "homologacao";
