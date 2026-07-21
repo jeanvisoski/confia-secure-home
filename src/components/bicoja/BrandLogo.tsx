@@ -6,7 +6,7 @@ type BrandLogoProps = {
 /** Marca bicojá: símbolo geométrico e logotipo em minúsculas conforme manual de marca. */
 export function BrandLogo({ className = "", variant = "mark" }: BrandLogoProps) {
   if (variant === "lockup") {
-    return <span aria-label="bicojá" className={`inline-flex shrink-0 items-center justify-center gap-3 ${className}`}><img src="/bicoja-mark.svg" alt="" aria-hidden="true" className="h-[min(72%,5rem)] min-h-0 w-auto max-w-[48%] object-contain" /><span className="font-display text-xl font-medium leading-none tracking-[-0.04em] text-foreground sm:text-2xl">bicojá</span></span>;
+    return <span aria-label="bicojá" className={`inline-flex shrink-0 items-center justify-center gap-3 ${className}`}><img src="/bicoja-mark.svg" alt="" aria-hidden="true" className="h-[min(72%,5rem)] min-h-0 w-auto max-w-[48%] object-contain" /><span className="font-display text-xl font-medium leading-none tracking-[-0.04em] text-primary sm:text-2xl">bicojá</span></span>;
   }
 
   if (variant === "full") {
