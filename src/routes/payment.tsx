@@ -14,8 +14,8 @@ import {
 import { PhoneFrame } from "@/components/bicoja/PhoneFrame";
 import { AppHeader } from "@/components/bicoja/AppHeader";
 import { supabase } from "@/lib/supabase";
-
 import { openExternalCheckout } from "@/lib/native";
+
 export const Route = createFileRoute("/payment")({
   component: Payment,
   validateSearch: (search: Record<string, unknown>): { orderId?: string } => ({
@@ -121,7 +121,15 @@ function Payment() {
 
   return (
     <PhoneFrame>
-      <AppHeader title="Pagamento" back right={<Link to="/orders" className="text-xs font-semibold text-primary px-1">Pedidos</Link>} />
+      <AppHeader
+        title="Pagamento"
+        back
+        right={
+          <Link to="/orders" className="text-xs font-semibold text-primary px-1">
+            Pedidos
+          </Link>
+        }
+      />
 
       <div className="flex-1 overflow-y-auto px-5 pt-4 pb-32">
         <div className="rounded-3xl bg-hero p-5 text-primary-foreground shadow-float relative overflow-hidden">
@@ -155,7 +163,11 @@ function Payment() {
             Forma de pagamento
           </p>
           <div className="rounded-2xl bg-card border border-border overflow-hidden">
-            <button hidden={!cardAvailable} onClick={() => setMethod("card")} className={`w-full flex items-center gap-3 p-4 border-b border-border ${method === "card" ? "bg-secondary/50" : ""}`}>
+            <button
+              hidden={!cardAvailable}
+              onClick={() => setMethod("card")}
+              className={`w-full flex items-center gap-3 p-4 border-b border-border ${method === "card" ? "bg-secondary/50" : ""}`}
+            >
               <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center">
                 <CreditCard className="h-5 w-5 text-primary" />
               </div>
@@ -165,7 +177,11 @@ function Payment() {
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </button>
-            <button hidden={!pixAvailable} onClick={() => setMethod("pix")} className={`w-full flex items-center gap-3 p-4 ${method === "pix" ? "bg-secondary/50" : ""}`}>
+            <button
+              hidden={!pixAvailable}
+              onClick={() => setMethod("pix")}
+              className={`w-full flex items-center gap-3 p-4 ${method === "pix" ? "bg-secondary/50" : ""}`}
+            >
               <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center">
                 <Wallet className="h-5 w-5 text-primary" />
               </div>
@@ -184,7 +200,11 @@ function Payment() {
         </div>
 
         <p className="text-[11px] text-primary font-medium mt-1 px-1">
-          {isHomologation ? "Homologação: a aprovação é simulada." : paymentMode === "sandbox" ? "Sandbox Mercado Pago: use a conta compradora e os meios de teste." : "Produção: você será levado ao checkout Mercado Pago."}
+          {isHomologation
+            ? "Homologação: a aprovação é simulada."
+            : paymentMode === "sandbox"
+              ? "Sandbox Mercado Pago: use a conta compradora e os meios de teste."
+              : "Produção: você será levado ao checkout Mercado Pago."}
         </p>
 
         <div className="mt-6 rounded-2xl border border-border bg-trust-soft/40 p-5">

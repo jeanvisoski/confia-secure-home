@@ -52,7 +52,14 @@ function AuthGate({ children }: { children: ReactNode }) {
   }, [session, navigate]);
 
   if (loading) {
-    return <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-5"><BrandLogo variant="full" className="h-28 w-28 animate-pulse" /><div className="h-1 w-20 overflow-hidden rounded-full bg-secondary"><div className="h-full w-1/2 rounded-full bg-primary animate-[pulse_1s_ease-in-out_infinite]" /></div></div>;
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-5">
+        <BrandLogo variant="full" className="h-28 w-28 animate-pulse" />
+        <div className="h-1 w-20 overflow-hidden rounded-full bg-secondary">
+          <div className="h-full w-1/2 rounded-full bg-primary animate-[pulse_1s_ease-in-out_infinite]" />
+        </div>
+      </div>
+    );
   }
   if (!session && !isPublic) return null;
   if (deactivated) return null;
@@ -181,7 +188,8 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
-    if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+    if ("serviceWorker" in navigator)
+      navigator.serviceWorker.register("/sw.js").catch(() => undefined);
   }, []);
 
   return (

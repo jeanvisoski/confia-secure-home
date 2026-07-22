@@ -24,7 +24,10 @@ export function AppHeader({
               <ChevronLeft className="h-5 w-5" />
             </Link>
           ) : (
-            <button onClick={() => router.history.back()} className="-ml-2 p-2 rounded-full hover:bg-muted">
+            <button
+              onClick={() => router.history.back()}
+              className="-ml-2 p-2 rounded-full hover:bg-muted"
+            >
               <ChevronLeft className="h-5 w-5" />
             </button>
           )

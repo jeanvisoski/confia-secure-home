@@ -71,15 +71,24 @@ function Proposals() {
     const proposal = proposals.find((p) => p.id === proposalId);
     if (!proposal || !requestId) return;
 
-    const { data: orderId, error } = await supabase.rpc("create_checkout_order", { p_proposal_id: proposalId });
+    const { data: orderId, error } = await supabase.rpc("create_checkout_order", {
+      p_proposal_id: proposalId,
+    });
     if (error || !orderId) {
       toast.error(error?.message ?? "Nao foi possivel criar o checkout.");
       return;
     }
 
-    const { data: requestPhotos } = await supabase.from("request_photos").select("photo_url").eq("request_id", requestId);
+    const { data: requestPhotos } = await supabase
+      .from("request_photos")
+      .select("photo_url")
+      .eq("request_id", requestId);
     if (requestPhotos?.length) {
-      await supabase.from("order_photos").insert(requestPhotos.map((p) => ({ order_id: orderId, kind: "antes", photo_url: p.photo_url })));
+      await supabase
+        .from("order_photos")
+        .insert(
+          requestPhotos.map((p) => ({ order_id: orderId, kind: "antes", photo_url: p.photo_url })),
+        );
     }
     queryClient.invalidateQueries({ queryKey: ["proposals", requestId] });
     nav({ to: "/payment", search: { orderId } });
@@ -96,7 +105,9 @@ function Proposals() {
         }
         back
         right={
-          <Link to="/orders" className="text-xs font-semibold text-primary px-1">Pedidos</Link>
+          <Link to="/orders" className="text-xs font-semibold text-primary px-1">
+            Pedidos
+          </Link>
         }
       />
 
@@ -117,7 +128,11 @@ function Proposals() {
               style={{ animationDelay: `${idx * 60}ms` }}
             >
               <div className="flex items-start gap-3">
-                <ProfileAvatar name={name} src={provider?.profiles?.avatar_url} className="h-14 w-14 rounded-2xl text-lg" />
+                <ProfileAvatar
+                  name={name}
+                  src={provider?.profiles?.avatar_url}
+                  className="h-14 w-14 rounded-2xl text-lg"
+                />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1">
                     <p className="font-semibold truncate">{name}</p>
@@ -149,7 +164,9 @@ function Proposals() {
                       ? `R$ ${Number(p.price_min).toFixed(2)} – ${Number(p.price_max).toFixed(2)}`
                       : `R$ ${Number(p.price).toFixed(2)}`}
                   </p>
-                  {p.pricing_type === "range" && <p className="text-[10px] text-muted-foreground">valor final após o serviço</p>}
+                  {p.pricing_type === "range" && (
+                    <p className="text-[10px] text-muted-foreground">valor final após o serviço</p>
+                  )}
                 </div>
               </div>
               <div className="mt-4 grid grid-cols-2 gap-2">
@@ -165,7 +182,11 @@ function Proposals() {
                   disabled={p.status !== "pendente"}
                   className="h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center active:scale-[0.98] transition-transform disabled:opacity-50"
                 >
-                  {p.status === "aceita" ? "Contratado" : p.status === "recusada" ? "Não selecionado" : "Contratar"}
+                  {p.status === "aceita"
+                    ? "Contratado"
+                    : p.status === "recusada"
+                      ? "Não selecionado"
+                      : "Contratar"}
                 </button>
               </div>
             </div>

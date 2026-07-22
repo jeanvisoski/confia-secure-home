@@ -15,19 +15,32 @@ export function BrowserNotifications() {
     if (!userId) return;
     const channel = supabase
       .channel(`browser-notifications-${userId}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `profile_id=eq.${userId}` }, async (payload) => {
-        queryClient.invalidateQueries({ queryKey: ["notifications", userId] });
-        queryClient.invalidateQueries({ queryKey: ["notifications-unread", userId] });
-        if (!("Notification" in window) || Notification.permission !== "granted") return;
-        const notification = payload.new as IncomingNotification;
-        const registration = await navigator.serviceWorker?.ready;
-        await registration?.showNotification(notification.title || "BICOJA", {
-          body: notification.body || "Voce recebeu uma atualizacao.", icon: "/bicoja-mark.svg", badge: "/bicoja-mark.svg",
-          data: { link: notification.link || "/notifications" },
-        });
-      })
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `profile_id=eq.${userId}`,
+        },
+        async (payload) => {
+          queryClient.invalidateQueries({ queryKey: ["notifications", userId] });
+          queryClient.invalidateQueries({ queryKey: ["notifications-unread", userId] });
+          if (!("Notification" in window) || Notification.permission !== "granted") return;
+          const notification = payload.new as IncomingNotification;
+          const registration = await navigator.serviceWorker?.ready;
+          await registration?.showNotification(notification.title || "BICOJA", {
+            body: notification.body || "Voce recebeu uma atualizacao.",
+            icon: "/bicoja-mark.svg",
+            badge: "/bicoja-mark.svg",
+            data: { link: notification.link || "/notifications" },
+          });
+        },
+      )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [queryClient, session?.user.id]);
 
   return null;

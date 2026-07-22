@@ -25,7 +25,9 @@ function NotificationsPage() {
   const { session } = useSession();
   const { data: notifications = [] } = useNotifications(session?.user.id);
   const markRead = useMarkNotificationRead();
-  const [permission, setPermission] = useState<NotificationPermission | "unsupported">("unsupported");
+  const [permission, setPermission] = useState<NotificationPermission | "unsupported">(
+    "unsupported",
+  );
 
   useEffect(() => {
     if ("Notification" in window) setPermission(Notification.permission);
@@ -45,8 +47,28 @@ function NotificationsPage() {
     <PhoneFrame>
       <AppHeader title="Notificações" back="/home" />
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
-        {permission === "default" && <button onClick={enableBrowserNotifications} className="w-full flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-left"><BellRing className="h-5 w-5 text-primary" /><span><span className="block text-sm font-semibold">Ativar notificacoes no dispositivo</span><span className="block text-xs text-muted-foreground mt-0.5">Receba alertas no navegador e no app instalado.</span></span></button>}
-        {permission === "denied" && <div className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground">As notificacoes estao bloqueadas neste dispositivo. Ative-as nas permissoes do navegador para receber alertas.</div>}
+        {permission === "default" && (
+          <button
+            onClick={enableBrowserNotifications}
+            className="w-full flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-left"
+          >
+            <BellRing className="h-5 w-5 text-primary" />
+            <span>
+              <span className="block text-sm font-semibold">
+                Ativar notificacoes no dispositivo
+              </span>
+              <span className="block text-xs text-muted-foreground mt-0.5">
+                Receba alertas no navegador e no app instalado.
+              </span>
+            </span>
+          </button>
+        )}
+        {permission === "denied" && (
+          <div className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground">
+            As notificacoes estao bloqueadas neste dispositivo. Ative-as nas permissoes do navegador
+            para receber alertas.
+          </div>
+        )}
         {notifications.length === 0 && (
           <div className="flex flex-col items-center text-center py-16 text-muted-foreground">
             <Inbox className="h-10 w-10 mb-3 opacity-50" />

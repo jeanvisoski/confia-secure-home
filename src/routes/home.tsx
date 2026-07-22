@@ -93,7 +93,9 @@ type ActiveOrder = {
   id: string;
   status: string;
   request_id: string;
-  provider_profiles: { profiles: { full_name: string | null; avatar_url: string | null } | null } | null;
+  provider_profiles: {
+    profiles: { full_name: string | null; avatar_url: string | null } | null;
+  } | null;
 };
 
 function useActiveOrder() {
@@ -142,7 +144,12 @@ function Home() {
   }, [isProvider, nav]);
 
   if (checkingRole || isProvider) {
-    return <PhoneFrame><AppHeader title="Início" back={false} /><div className="flex-1" /></PhoneFrame>;
+    return (
+      <PhoneFrame>
+        <AppHeader title="Início" back={false} />
+        <div className="flex-1" />
+      </PhoneFrame>
+    );
   }
 
   return (
@@ -251,7 +258,11 @@ function Home() {
                     params={{ providerId: p.profile_id }}
                     className="min-w-[210px] rounded-2xl bg-card border border-border shadow-card p-4"
                   >
-                    <ProfileAvatar name={name} src={p.profiles?.avatar_url} className="h-14 w-14 rounded-2xl text-lg mb-3" />
+                    <ProfileAvatar
+                      name={name}
+                      src={p.profiles?.avatar_url}
+                      className="h-14 w-14 rounded-2xl text-lg mb-3"
+                    />
                     <div className="flex items-center gap-1 mb-0.5">
                       <p className="font-semibold text-sm">{name}</p>
                       <BadgeCheck className="h-4 w-4 text-trust" />
@@ -298,7 +309,11 @@ function Home() {
               className="block rounded-2xl bg-card border border-border p-4"
             >
               <div className="flex items-center gap-3">
-                <ProfileAvatar name={activeOrder.provider_profiles?.profiles?.full_name} src={activeOrder.provider_profiles?.profiles?.avatar_url} className="h-11 w-11 rounded-2xl text-sm" />
+                <ProfileAvatar
+                  name={activeOrder.provider_profiles?.profiles?.full_name}
+                  src={activeOrder.provider_profiles?.profiles?.avatar_url}
+                  className="h-11 w-11 rounded-2xl text-sm"
+                />
                 <div className="flex-1">
                   <p className="font-semibold text-sm">
                     {activeOrder.provider_profiles?.profiles?.full_name ?? "Prestador"}

@@ -8,7 +8,8 @@ const headers = {
 
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers });
-  if (request.method !== "GET") return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers });
+  if (request.method !== "GET")
+    return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers });
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -23,12 +24,18 @@ Deno.serve(async (request) => {
       .single();
     if (error) throw error;
 
-    return new Response(JSON.stringify({
-      app_store_url: data?.app_store_url || null,
-      google_play_url: data?.google_play_url || null,
-    }), { headers });
+    return new Response(
+      JSON.stringify({
+        app_store_url: data?.app_store_url || null,
+        google_play_url: data?.google_play_url || null,
+      }),
+      { headers },
+    );
   } catch (error) {
     console.error(error);
-    return new Response(JSON.stringify({ error: "Unable to load public configuration" }), { status: 500, headers });
+    return new Response(JSON.stringify({ error: "Unable to load public configuration" }), {
+      status: 500,
+      headers,
+    });
   }
 });

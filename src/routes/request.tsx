@@ -52,14 +52,72 @@ function usePreferredProvider(providerId: string | undefined) {
   });
 }
 
-type SavedAddress = { id: string; cep: string | null; street: string; number: string | null; neighborhood: string | null; city: string; state: string | null; lat: number | null; lng: number | null; is_default: boolean };
+type SavedAddress = {
+  id: string;
+  cep: string | null;
+  street: string;
+  number: string | null;
+  neighborhood: string | null;
+  city: string;
+  state: string | null;
+  lat: number | null;
+  lng: number | null;
+  is_default: boolean;
+};
+
+type ServiceArea = { city: string; state: string };
+type LaunchRegionSettings = {
+  launch_regions_enabled: boolean;
+  active_service_regions: ServiceArea[];
+};
+
+function normalizeAreaPart(value: string) {
+  return value.trim().toLocaleLowerCase("pt-BR");
+}
+
+function isInsideActiveServiceArea(
+  settings: LaunchRegionSettings | undefined,
+  city: string,
+  state: string,
+) {
+  if (!settings?.launch_regions_enabled) return true;
+  return settings.active_service_regions.some(
+    (region) =>
+      normalizeAreaPart(region.city) === normalizeAreaPart(city) &&
+      normalizeAreaPart(region.state) === normalizeAreaPart(state),
+  );
+}
+
+function useLaunchRegionSettings() {
+  return useQuery({
+    queryKey: ["launch-region-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("platform_settings")
+        .select("launch_regions_enabled, active_service_regions")
+        .eq("id", true)
+        .maybeSingle<LaunchRegionSettings>();
+      // A ausência da migration não deve impedir pedidos antes da atualização.
+      if (error?.code === "42703") return undefined;
+      if (error) throw error;
+      return data ?? undefined;
+    },
+  });
+}
 
 function useRequestDefaults(userId: string | undefined) {
   return useQuery({
     queryKey: ["request-defaults", userId],
     queryFn: async () => {
       const [addressResult, profileResult] = await Promise.all([
-        supabase.from("addresses").select("id, cep, street, number, neighborhood, city, state, lat, lng, is_default").eq("profile_id", userId).order("is_default", { ascending: false }).order("created_at", { ascending: false }).limit(1).maybeSingle<SavedAddress>(),
+        supabase
+          .from("addresses")
+          .select("id, cep, street, number, neighborhood, city, state, lat, lng, is_default")
+          .eq("profile_id", userId)
+          .order("is_default", { ascending: false })
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle<SavedAddress>(),
         supabase.from("profiles").select("full_name, phone").eq("id", userId).maybeSingle(),
       ]);
       if (addressResult.error) throw addressResult.error;
@@ -70,7 +128,15 @@ function useRequestDefaults(userId: string | undefined) {
   });
 }
 
-const STEPS = ["Categoria", "Descrição", "Fotos", "Endereço", "Disponibilidade", "Contato", "Confirmar"];
+const STEPS = [
+  "Categoria",
+  "Descrição",
+  "Fotos",
+  "Endereço",
+  "Disponibilidade",
+  "Contato",
+  "Confirmar",
+];
 
 const URGENCY_OPTIONS = [
   { label: "Hoje", value: "hoje", desc: "Preciso agora", icon: Clock },
@@ -85,6 +151,7 @@ function RequestFlow() {
   const { data: categories = [] } = useCategories();
   const { data: preferredProvider } = usePreferredProvider(providerId);
   const { data: defaults } = useRequestDefaults(session?.user.id);
+  const { data: launchRegions } = useLaunchRegionSettings();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const locateAttemptRef = useRef(0);
 
@@ -203,13 +270,27 @@ function RequestFlow() {
   }
 
   const selectedCategory = categories.find((c) => c.id === categoryId);
+  const areaAvailable = isInsideActiveServiceArea(launchRegions, city, state);
 
   const canNext =
     (step === 0 && categoryId) ||
     (step === 1 && desc.length > 5) ||
     step === 2 ||
-    (step === 3 && cep.replace(/\D/g, "").length === 8 && street.trim() && houseNumber.trim() && neighborhood.trim() && city.trim() && state.trim()) ||
-    (step === 4 && urgency && availabilityStartTime && availabilityEndTime && availabilityEndTime > availabilityStartTime && (urgency === "hoje" || (availabilityStart && availabilityEnd && availabilityEnd >= availabilityStart))) ||
+    (step === 3 &&
+      cep.replace(/\D/g, "").length === 8 &&
+      street.trim() &&
+      houseNumber.trim() &&
+      neighborhood.trim() &&
+      city.trim() &&
+      state.trim() &&
+      areaAvailable) ||
+    (step === 4 &&
+      urgency &&
+      availabilityStartTime &&
+      availabilityEndTime &&
+      availabilityEndTime > availabilityStartTime &&
+      (urgency === "hoje" ||
+        (availabilityStart && availabilityEnd && availabilityEnd >= availabilityStart))) ||
     (step === 5 && contactName.trim() && contactPhone.trim()) ||
     step === 6;
 
@@ -235,15 +316,34 @@ function RequestFlow() {
     }
     if (!categoryId || !urgency) return;
 
+    if (!isInsideActiveServiceArea(launchRegions, city, state)) {
+      const label = [city, state].filter(Boolean).join("/") || "essa região";
+      const message = `A BICOJÁ ainda não está atendendo ${label}. Estamos expandindo em breve.`;
+      setSubmitError(message);
+      toast.error(message);
+      return;
+    }
+
     setSubmitting(true);
     setSubmitError(null);
     await ensureProfile(session);
 
-    let addressId = !usingOtherAddress ? defaults?.address?.id ?? null : null;
+    let addressId = !usingOtherAddress ? (defaults?.address?.id ?? null) : null;
     if (!addressId) {
       const { data: address, error: addressError } = await supabase
         .from("addresses")
-        .insert({ profile_id: session.user.id, street: street.trim(), number: houseNumber.trim(), neighborhood: neighborhood.trim(), city: city.trim(), state: state.trim(), cep: cep.replace(/\D/g, ""), lat, lng, is_default: !defaults?.address })
+        .insert({
+          profile_id: session.user.id,
+          street: street.trim(),
+          number: houseNumber.trim(),
+          neighborhood: neighborhood.trim(),
+          city: city.trim(),
+          state: state.trim(),
+          cep: cep.replace(/\D/g, ""),
+          lat,
+          lng,
+          is_default: !defaults?.address,
+        })
         .select("id")
         .single();
       if (addressError) {
@@ -264,8 +364,10 @@ function RequestFlow() {
         urgency,
         address_id: addressId,
         scheduled_at: null,
-        availability_start: urgency === "hoje" ? new Date().toISOString().slice(0, 10) : availabilityStart,
-        availability_end: urgency === "hoje" ? new Date().toISOString().slice(0, 10) : availabilityEnd,
+        availability_start:
+          urgency === "hoje" ? new Date().toISOString().slice(0, 10) : availabilityStart,
+        availability_end:
+          urgency === "hoje" ? new Date().toISOString().slice(0, 10) : availabilityEnd,
         availability_start_time: availabilityStartTime,
         availability_end_time: availabilityEndTime,
         contact_name: contactName.trim(),
@@ -428,8 +530,27 @@ function RequestFlow() {
             </p>
             {defaults?.address && !usingOtherAddress && (
               <div className="mb-3 rounded-2xl bg-trust-soft/50 border border-trust/20 p-3 flex items-center justify-between gap-3">
-                <p className="text-xs"><span className="font-semibold">Usando seu endereço salvo.</span><br />{street}, {houseNumber} · {city}</p>
-                <button type="button" onClick={() => { setUsingOtherAddress(true); setEditingAddress(true); setStreet(""); setHouseNumber(""); setNeighborhood(""); setCity(""); setState(""); setCep(""); }} className="text-xs font-semibold text-primary">Outro endereço</button>
+                <p className="text-xs">
+                  <span className="font-semibold">Usando seu endereço salvo.</span>
+                  <br />
+                  {street}, {houseNumber} · {city}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUsingOtherAddress(true);
+                    setEditingAddress(true);
+                    setStreet("");
+                    setHouseNumber("");
+                    setNeighborhood("");
+                    setCity("");
+                    setState("");
+                    setCep("");
+                  }}
+                  className="text-xs font-semibold text-primary"
+                >
+                  Outro endereço
+                </button>
               </div>
             )}
             <MapView
@@ -442,13 +563,27 @@ function RequestFlow() {
               }}
               height={208}
             />
+            {launchRegions?.launch_regions_enabled && city && state && !areaAvailable && (
+              <div className="mt-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
+                A BICOJÁ ainda não atende{" "}
+                <strong>
+                  {city}/{state}
+                </strong>{" "}
+                nesta fase de lançamento. Cadastre-se para acompanhar a expansão ou use um endereço
+                em uma cidade atendida.
+              </div>
+            )}
             {locating && (
               <div className="mt-3 p-4 rounded-2xl bg-card border border-border flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <LocateFixed className="h-5 w-5 text-primary animate-pulse" />
                   <p className="text-sm text-muted-foreground">Localizando você...</p>
                 </div>
-                <button type="button" onClick={enterAddressManually} className="shrink-0 text-primary text-xs font-semibold">
+                <button
+                  type="button"
+                  onClick={enterAddressManually}
+                  className="shrink-0 text-primary text-xs font-semibold"
+                >
                   Digitar endereço
                 </button>
               </div>
@@ -607,22 +742,98 @@ function RequestFlow() {
             </div>
 
             <div className="mt-6 p-4 rounded-2xl bg-card border border-border space-y-3">
-              <div><p className="font-semibold text-sm">{urgency === "hoje" ? "Em qual horário você estará em casa?" : "Quando você estará em casa?"}</p><p className="text-xs text-muted-foreground">{urgency === "hoje" ? "Escolha a faixa de horário disponível hoje." : "Escolha as datas e a faixa de horário em que o prestador pode atender."}</p></div>
-              {urgency !== "hoje" && <div className="grid grid-cols-2 gap-2"><label className="text-xs text-muted-foreground">De<input type="date" value={availabilityStart} onChange={(e) => setAvailabilityStart(e.target.value)} min={new Date().toISOString().slice(0, 10)} className="w-full mt-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" /></label><label className="text-xs text-muted-foreground">Até<input type="date" value={availabilityEnd} onChange={(e) => setAvailabilityEnd(e.target.value)} min={availabilityStart || new Date().toISOString().slice(0, 10)} className="w-full mt-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" /></label></div>}
-              <div className="grid grid-cols-2 gap-2"><label className="text-xs text-muted-foreground">Das<input type="time" value={availabilityStartTime} onChange={(e) => setAvailabilityStartTime(e.target.value)} className="w-full mt-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" /></label><label className="text-xs text-muted-foreground">Até<input type="time" value={availabilityEndTime} onChange={(e) => setAvailabilityEndTime(e.target.value)} min={availabilityStartTime || undefined} className="w-full mt-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" /></label></div>
+              <div>
+                <p className="font-semibold text-sm">
+                  {urgency === "hoje"
+                    ? "Em qual horário você estará em casa?"
+                    : "Quando você estará em casa?"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {urgency === "hoje"
+                    ? "Escolha a faixa de horário disponível hoje."
+                    : "Escolha as datas e a faixa de horário em que o prestador pode atender."}
+                </p>
+              </div>
+              {urgency !== "hoje" && (
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="text-xs text-muted-foreground">
+                    De
+                    <input
+                      type="date"
+                      value={availabilityStart}
+                      onChange={(e) => setAvailabilityStart(e.target.value)}
+                      min={new Date().toISOString().slice(0, 10)}
+                      className="w-full mt-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                    />
+                  </label>
+                  <label className="text-xs text-muted-foreground">
+                    Até
+                    <input
+                      type="date"
+                      value={availabilityEnd}
+                      onChange={(e) => setAvailabilityEnd(e.target.value)}
+                      min={availabilityStart || new Date().toISOString().slice(0, 10)}
+                      className="w-full mt-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                    />
+                  </label>
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-2">
+                <label className="text-xs text-muted-foreground">
+                  Das
+                  <input
+                    type="time"
+                    value={availabilityStartTime}
+                    onChange={(e) => setAvailabilityStartTime(e.target.value)}
+                    className="w-full mt-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                  />
+                </label>
+                <label className="text-xs text-muted-foreground">
+                  Até
+                  <input
+                    type="time"
+                    value={availabilityEndTime}
+                    onChange={(e) => setAvailabilityEndTime(e.target.value)}
+                    min={availabilityStartTime || undefined}
+                    className="w-full mt-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                  />
+                </label>
+              </div>
             </div>
           </div>
         )}
 
         {step === 5 && (
           <div className="animate-float-up">
-            <h2 className="text-2xl font-extrabold font-[Manrope] leading-tight mb-1">Contato no local</h2>
-            <p className="text-muted-foreground mb-6 text-sm">Informe quem o prestador deve chamar caso precise falar sobre o atendimento.</p>
+            <h2 className="text-2xl font-extrabold font-[Manrope] leading-tight mb-1">
+              Contato no local
+            </h2>
+            <p className="text-muted-foreground mb-6 text-sm">
+              Informe quem o prestador deve chamar caso precise falar sobre o atendimento.
+            </p>
             <div className="space-y-3 rounded-2xl bg-card border border-border p-4">
-              <input value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="Nome do contato" className="w-full h-12 px-3 rounded-xl bg-background border border-border text-sm outline-none" />
-              <input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="Telefone / WhatsApp" inputMode="tel" className="w-full h-12 px-3 rounded-xl bg-background border border-border text-sm outline-none" />
-              <input value={attendeeName} onChange={(e) => setAttendeeName(e.target.value)} placeholder="Quem receberá o prestador? (opcional)" className="w-full h-12 px-3 rounded-xl bg-background border border-border text-sm outline-none" />
-              <p className="text-[11px] text-muted-foreground">Se outra pessoa estiver no local, informe o nome dela acima.</p>
+              <input
+                value={contactName}
+                onChange={(e) => setContactName(e.target.value)}
+                placeholder="Nome do contato"
+                className="w-full h-12 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+              />
+              <input
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                placeholder="Telefone / WhatsApp"
+                inputMode="tel"
+                className="w-full h-12 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+              />
+              <input
+                value={attendeeName}
+                onChange={(e) => setAttendeeName(e.target.value)}
+                placeholder="Quem receberá o prestador? (opcional)"
+                className="w-full h-12 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Se outra pessoa estiver no local, informe o nome dela acima.
+              </p>
             </div>
           </div>
         )}
@@ -653,8 +864,18 @@ function RequestFlow() {
                 label="Urgência"
                 value={URGENCY_OPTIONS.find((u) => u.value === urgency)?.label ?? "-"}
               />
-              <Row label="Disponibilidade" value={urgency === "hoje" ? `Hoje, das ${availabilityStartTime} até ${availabilityEndTime}` : `${availabilityStart.split("-").reverse().join("/")} até ${availabilityEnd.split("-").reverse().join("/")} · ${availabilityStartTime}–${availabilityEndTime}`} />
-              <Row label="Contato" value={`${contactName} · ${contactPhone}${attendeeName ? ` · Recebe: ${attendeeName}` : ""}`} />
+              <Row
+                label="Disponibilidade"
+                value={
+                  urgency === "hoje"
+                    ? `Hoje, das ${availabilityStartTime} até ${availabilityEndTime}`
+                    : `${availabilityStart.split("-").reverse().join("/")} até ${availabilityEnd.split("-").reverse().join("/")} · ${availabilityStartTime}–${availabilityEndTime}`
+                }
+              />
+              <Row
+                label="Contato"
+                value={`${contactName} · ${contactPhone}${attendeeName ? ` · Recebe: ${attendeeName}` : ""}`}
+              />
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               <TrustBadge kind="payment" />

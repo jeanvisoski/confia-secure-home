@@ -1,6 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { TrendingUp, Wallet, Star, Bell, ChevronRight, ShieldCheck, MapPin, CalendarDays } from "lucide-react";
+import {
+  TrendingUp,
+  Wallet,
+  Star,
+  Bell,
+  ChevronRight,
+  ShieldCheck,
+  MapPin,
+  CalendarDays,
+} from "lucide-react";
 import { PhoneFrame } from "@/components/bicoja/PhoneFrame";
 import { BottomNav } from "@/components/bicoja/BottomNav";
 import { supabase } from "@/lib/supabase";
@@ -106,9 +115,20 @@ function useEligibleRequestDistances(providerId: string | undefined) {
       const { data, error } = await supabase.rpc("get_provider_open_request_distances");
       if (error) {
         console.error("Falha ao consultar solicitações por raio:", error.message);
-        return { distances: new Map<string, number>(), issue: error.message } satisfies EligibleDistancesResult;
+        return {
+          distances: new Map<string, number>(),
+          issue: error.message,
+        } satisfies EligibleDistancesResult;
       }
-      return { distances: new Map(((data ?? []) as EligibleRequest[]).map((row) => [row.request_id, Number(row.distance_km)])), issue: null } satisfies EligibleDistancesResult;
+      return {
+        distances: new Map(
+          ((data ?? []) as EligibleRequest[]).map((row) => [
+            row.request_id,
+            Number(row.distance_km),
+          ]),
+        ),
+        issue: null,
+      } satisfies EligibleDistancesResult;
     },
     enabled: !!providerId,
   });
@@ -181,7 +201,9 @@ function useMyProviderOrders(providerId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("id, status, price, total, created_at, service_requests(description, urgency, service_categories(label), profiles(full_name), addresses(neighborhood, city, state))")
+        .select(
+          "id, status, price, total, created_at, service_requests(description, urgency, service_categories(label), profiles(full_name), addresses(neighborhood, city, state))",
+        )
         .eq("provider_id", providerId)
         .in("status", PROVIDER_ACTIVE_STATUSES)
         .order("created_at", { ascending: false })
@@ -200,10 +222,15 @@ function ProDashboard() {
   const { data: provider, isLoading: loadingProvider } = useProviderProfile(userId);
   const { data: wallet } = useWallet(provider?.profile_id);
   const { data: openRequestsRaw = [] } = useOpenRequests();
-  const { data: serviceCategoryIds = new Set<string>() } = useServiceCategoryIds(provider?.profile_id);
-  const { data: eligibleResult = { distances: new Map<string, number>(), issue: null } } = useEligibleRequestDistances(provider?.profile_id);
+  const { data: serviceCategoryIds = new Set<string>() } = useServiceCategoryIds(
+    provider?.profile_id,
+  );
+  const { data: eligibleResult = { distances: new Map<string, number>(), issue: null } } =
+    useEligibleRequestDistances(provider?.profile_id);
   const eligibleDistances = eligibleResult.distances;
-  const { data: proposalRequestIds = new Set<string>() } = useMyProposalRequestIds(provider?.profile_id);
+  const { data: proposalRequestIds = new Set<string>() } = useMyProposalRequestIds(
+    provider?.profile_id,
+  );
   const { data: myOrders = [] } = useMyProviderOrders(provider?.profile_id);
   const { data: unreadCount = 0 } = useUnreadCount(userId);
 
@@ -346,7 +373,9 @@ function ProDashboard() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold">Minha agenda</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">Veja todos os serviços, datas e histórico.</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Veja todos os serviços, datas e histórico.
+              </p>
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </Link>
@@ -367,13 +396,21 @@ function ProDashboard() {
           )}
           <div className="space-y-3">
             {serviceCategoryIds.size === 0 && (
-              <Link to="/pro/profile" className="block rounded-2xl bg-secondary p-4 text-sm text-muted-foreground">
-                Cadastre ao menos um serviço no seu perfil para receber oportunidades daquela categoria.
+              <Link
+                to="/pro/profile"
+                className="block rounded-2xl bg-secondary p-4 text-sm text-muted-foreground"
+              >
+                Cadastre ao menos um serviço no seu perfil para receber oportunidades daquela
+                categoria.
               </Link>
             )}
             {openRequests.length === 0 && (
               <p className="text-sm text-muted-foreground py-6 text-center">
-                {serviceCategoryIds.size === 0 ? "" : eligibleResult.issue ? "Não foi possível validar o raio agora. Atualize a configuração do banco e tente novamente." : "Nenhuma solicitação aberta nas suas categorias dentro do seu raio no momento."}
+                {serviceCategoryIds.size === 0
+                  ? ""
+                  : eligibleResult.issue
+                    ? "Não foi possível validar o raio agora. Atualize a configuração do banco e tente novamente."
+                    : "Nenhuma solicitação aberta nas suas categorias dentro do seu raio no momento."}
               </p>
             )}
             {openRequests.map((r) => {
@@ -434,14 +471,22 @@ function ProDashboard() {
                     <p className="font-semibold text-sm truncate">
                       {o.service_requests?.service_categories?.label ?? "Serviço"}
                     </p>
-                    <p className="text-xs text-foreground/80 line-clamp-2 mt-0.5">{o.service_requests?.description ?? "Detalhes indisponiveis"}</p>
+                    <p className="text-xs text-foreground/80 line-clamp-2 mt-0.5">
+                      {o.service_requests?.description ?? "Detalhes indisponiveis"}
+                    </p>
                     <p className="text-[11px] text-muted-foreground mt-1 truncate">
                       {o.service_requests?.profiles?.full_name ?? "Cliente"}
-                      {o.service_requests?.addresses?.city ? ` • ${o.service_requests.addresses.neighborhood ? `${o.service_requests.addresses.neighborhood}, ` : ""}${o.service_requests.addresses.city}/${o.service_requests.addresses.state ?? ""}` : ""}
+                      {o.service_requests?.addresses?.city
+                        ? ` • ${o.service_requests.addresses.neighborhood ? `${o.service_requests.addresses.neighborhood}, ` : ""}${o.service_requests.addresses.city}/${o.service_requests.addresses.state ?? ""}`
+                        : ""}
                     </p>
                     <div className="flex items-center justify-between gap-2 mt-1">
-                      <p className="text-[11px] text-primary font-medium">{providerOrderStatusLabel[o.status] ?? o.status}</p>
-                      <span className="text-[11px] font-bold text-primary">R$ {Number(o.price).toFixed(2)}</span>
+                      <p className="text-[11px] text-primary font-medium">
+                        {providerOrderStatusLabel[o.status] ?? o.status}
+                      </p>
+                      <span className="text-[11px] font-bold text-primary">
+                        R$ {Number(o.price).toFixed(2)}
+                      </span>
                     </div>
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />

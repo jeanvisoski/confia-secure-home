@@ -74,7 +74,13 @@ type OrderDetail = {
   duration_minutes: number | null;
   final_price: number;
   client_id: string;
-  service_requests: { description: string; contact_name: string | null; contact_phone: string | null; attendee_name: string | null; service_categories: { label: string } | null } | null;
+  service_requests: {
+    description: string;
+    contact_name: string | null;
+    contact_phone: string | null;
+    attendee_name: string | null;
+    service_categories: { label: string } | null;
+  } | null;
   profiles: { full_name: string | null } | null;
 };
 
@@ -102,7 +108,14 @@ function useOrderDetail(orderId: string | undefined) {
   });
 }
 
-type ExistingProposal = { id: string; price: number; pricing_type: "fixed" | "range"; price_min: number; price_max: number; status: string };
+type ExistingProposal = {
+  id: string;
+  price: number;
+  pricing_type: "fixed" | "range";
+  price_min: number;
+  price_max: number;
+  status: string;
+};
 
 function useExistingProposal(requestId: string | undefined, providerId: string | undefined) {
   return useQuery({
@@ -139,7 +152,9 @@ function useMyProposals(providerId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("proposals")
-        .select("id, request_id, price, status, created_at, service_requests(description, service_categories(label))")
+        .select(
+          "id, request_id, price, status, created_at, service_requests(description, service_categories(label))",
+        )
         .eq("provider_id", providerId)
         .order("created_at", { ascending: false })
         .returns<MyProposal[]>();
@@ -207,13 +222,15 @@ function ProOrder() {
   }
 
   function stopLiveTracking() {
-    if (locationWatchRef.current != null) navigator.geolocation.clearWatch(locationWatchRef.current);
+    if (locationWatchRef.current != null)
+      navigator.geolocation.clearWatch(locationWatchRef.current);
     locationWatchRef.current = null;
   }
 
   async function startLiveTracking(showError = false) {
     if (!orderId || !session || !navigator.geolocation) {
-      if (showError) toast.error("Ative a localizaÃ§Ã£o do aparelho para compartilhar o deslocamento.");
+      if (showError)
+        toast.error("Ative a localizaÃ§Ã£o do aparelho para compartilhar o deslocamento.");
       return false;
     }
     const initialPosition = await new Promise<GeolocationPosition | null>((resolve) => {
@@ -224,7 +241,8 @@ function ProOrder() {
       });
     });
     if (!initialPosition) {
-      if (showError) toast.error("NÃ£o foi possÃ­vel obter sua localizaÃ§Ã£o. Verifique a permissÃ£o do GPS.");
+      if (showError)
+        toast.error("NÃ£o foi possÃ­vel obter sua localizaÃ§Ã£o. Verifique a permissÃ£o do GPS.");
       return false;
     }
     const saved = await publishLiveLocation(initialPosition, true);
@@ -298,8 +316,15 @@ function ProOrder() {
     let amount: number | null = null;
     if (nextStatus === "fotos_enviadas") {
       amount = Number(finalPrice);
-      if (!amount || !order || amount < Number(order.quoted_price_min) || amount > Number(order.quoted_price_max)) {
-        toast.error(`Informe o valor final dentro do orçamento aceito: R$ ${Number(order?.quoted_price_min ?? 0).toFixed(2)} a R$ ${Number(order?.quoted_price_max ?? 0).toFixed(2)}.`);
+      if (
+        !amount ||
+        !order ||
+        amount < Number(order.quoted_price_min) ||
+        amount > Number(order.quoted_price_max)
+      ) {
+        toast.error(
+          `Informe o valor final dentro do orçamento aceito: R$ ${Number(order?.quoted_price_min ?? 0).toFixed(2)} a R$ ${Number(order?.quoted_price_max ?? 0).toFixed(2)}.`,
+        );
         return false;
       }
     }
@@ -325,7 +350,8 @@ function ProOrder() {
       toast.error(error.message);
       return;
     }
-    if (nextStatus === "fotos_enviadas") toast.success("Fotos enviadas ao cliente para confirmação.");
+    if (nextStatus === "fotos_enviadas")
+      toast.success("Fotos enviadas ao cliente para confirmação.");
     queryClient.invalidateQueries({ queryKey: ["pro-order", orderId] });
     if (nextStatus === "executando") {
       stopLiveTracking();
@@ -338,7 +364,10 @@ function ProOrder() {
     const transitioned = await advanceOrder("a_caminho", "Prestador informou que estÃ¡ a caminho.");
     if (!transitioned) return;
     const locationStarted = await startLiveTracking(true);
-    if (!locationStarted) toast.warning("O pedido estÃ¡ a caminho, mas a localizaÃ§Ã£o ao vivo nÃ£o pÃ´de ser iniciada.");
+    if (!locationStarted)
+      toast.warning(
+        "O pedido estÃ¡ a caminho, mas a localizaÃ§Ã£o ao vivo nÃ£o pÃ´de ser iniciada.",
+      );
   }
 
   // Modo "receber": ver uma solicitação aberta e enviar orçamento (ainda não é um pedido).
@@ -375,60 +404,112 @@ function ProOrder() {
                 <CalendarClock className="h-5 w-5 text-primary" />
                 <p className="text-sm">
                   <span className="font-semibold">Cliente disponível: </span>
-                  {request.urgency === "hoje" ? "Hoje" : `${new Date(`${request.availability_start}T12:00:00`).toLocaleDateString("pt-BR")} até ${new Date(`${request.availability_end}T12:00:00`).toLocaleDateString("pt-BR")}`}{request.availability_start_time && request.availability_end_time ? ` · ${request.availability_start_time.slice(0, 5)}–${request.availability_end_time.slice(0, 5)}` : ""}
+                  {request.urgency === "hoje"
+                    ? "Hoje"
+                    : `${new Date(`${request.availability_start}T12:00:00`).toLocaleDateString("pt-BR")} até ${new Date(`${request.availability_end}T12:00:00`).toLocaleDateString("pt-BR")}`}
+                  {request.availability_start_time && request.availability_end_time
+                    ? ` · ${request.availability_start_time.slice(0, 5)}–${request.availability_end_time.slice(0, 5)}`
+                    : ""}
                 </p>
               </div>
             )}
 
             {existingProposal ? (
               <div className="rounded-2xl bg-trust-soft/60 border border-trust/20 p-4">
-                <p className="text-sm font-semibold text-trust">Você já enviou um orçamento para este cliente.</p>
-                <p className="text-xs text-muted-foreground mt-1">Valor enviado: {existingProposal.pricing_type === "range" ? `R$ ${Number(existingProposal.price_min).toFixed(2)} – ${Number(existingProposal.price_max).toFixed(2)}` : `R$ ${Number(existingProposal.price).toFixed(2)}`} · Status: {existingProposal.status}</p>
+                <p className="text-sm font-semibold text-trust">
+                  Você já enviou um orçamento para este cliente.
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Valor enviado:{" "}
+                  {existingProposal.pricing_type === "range"
+                    ? `R$ ${Number(existingProposal.price_min).toFixed(2)} – ${Number(existingProposal.price_max).toFixed(2)}`
+                    : `R$ ${Number(existingProposal.price).toFixed(2)}`}{" "}
+                  · Status: {existingProposal.status}
+                </p>
               </div>
-            ) : <div className="rounded-2xl bg-trust-soft/60 border border-trust/20 p-4 space-y-3">
-              <p className="text-xs uppercase font-bold text-trust tracking-widest">
-                Seu orçamento
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                <button type="button" onClick={() => setPricingType("fixed")} className={`h-10 rounded-xl text-xs font-semibold border ${pricingType === "fixed" ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border"}`}>Valor fechado</button>
-                <button type="button" onClick={() => setPricingType("range")} className={`h-10 rounded-xl text-xs font-semibold border ${pricingType === "range" ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border"}`}>Faixa de valor</button>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">R$</span>
-                <input
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value.replace(/[^0-9.]/g, ""))}
-                  placeholder={pricingType === "range" ? "Valor mínimo" : "Valor fechado"}
-                  className="flex-1 h-11 px-3 rounded-xl bg-background border border-border text-lg font-bold outline-none"
+            ) : (
+              <div className="rounded-2xl bg-trust-soft/60 border border-trust/20 p-4 space-y-3">
+                <p className="text-xs uppercase font-bold text-trust tracking-widest">
+                  Seu orçamento
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPricingType("fixed")}
+                    className={`h-10 rounded-xl text-xs font-semibold border ${pricingType === "fixed" ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border"}`}
+                  >
+                    Valor fechado
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPricingType("range")}
+                    className={`h-10 rounded-xl text-xs font-semibold border ${pricingType === "range" ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border"}`}
+                  >
+                    Faixa de valor
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">R$</span>
+                  <input
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value.replace(/[^0-9.]/g, ""))}
+                    placeholder={pricingType === "range" ? "Valor mínimo" : "Valor fechado"}
+                    className="flex-1 h-11 px-3 rounded-xl bg-background border border-border text-lg font-bold outline-none"
+                  />
+                </div>
+                {pricingType === "range" && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">até R$</span>
+                    <input
+                      value={priceMax}
+                      onChange={(e) => setPriceMax(e.target.value.replace(/[^0-9.]/g, ""))}
+                      placeholder="Valor máximo"
+                      className="flex-1 h-11 px-3 rounded-xl bg-background border border-border text-lg font-bold outline-none"
+                    />
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Chega em (min)</span>
+                  <input
+                    value={eta}
+                    onChange={(e) => setEta(e.target.value.replace(/[^0-9]/g, ""))}
+                    placeholder="Ex.: 30"
+                    className="w-20 h-11 px-3 rounded-xl bg-background border border-border text-sm font-semibold outline-none"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Duração (min)</span>
+                  <input
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value.replace(/[^0-9]/g, ""))}
+                    placeholder="Ex.: 60"
+                    className="w-20 h-11 px-3 rounded-xl bg-background border border-border text-sm font-semibold outline-none"
+                  />
+                </div>
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Mensagem para o cliente (opcional)"
+                  className="w-full h-20 p-3 rounded-xl bg-background border border-border text-sm resize-none outline-none"
                 />
               </div>
-              {pricingType === "range" && <div className="flex items-center gap-2"><span className="text-sm text-muted-foreground">até R$</span><input value={priceMax} onChange={(e) => setPriceMax(e.target.value.replace(/[^0-9.]/g, ""))} placeholder="Valor máximo" className="flex-1 h-11 px-3 rounded-xl bg-background border border-border text-lg font-bold outline-none" /></div>}
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Chega em (min)</span>
-                <input
-                  value={eta}
-                  onChange={(e) => setEta(e.target.value.replace(/[^0-9]/g, ""))}
-                  placeholder="Ex.: 30"
-                  className="w-20 h-11 px-3 rounded-xl bg-background border border-border text-sm font-semibold outline-none"
-                />
-              </div>
-              <div className="flex items-center gap-2"><span className="text-sm text-muted-foreground">Duração (min)</span><input value={duration} onChange={(e) => setDuration(e.target.value.replace(/[^0-9]/g, ""))} placeholder="Ex.: 60" className="w-20 h-11 px-3 rounded-xl bg-background border border-border text-sm font-semibold outline-none" /></div>
-              <textarea
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="Mensagem para o cliente (opcional)"
-                className="w-full h-20 p-3 rounded-xl bg-background border border-border text-sm resize-none outline-none"
-              />
-            </div>}
+            )}
           </div>
         </div>
         <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-background via-background to-background/0 pt-8">
           <button
             onClick={sendProposal}
-            disabled={sending || !price || (pricingType === "range" && !priceMax) || !!existingProposal}
+            disabled={
+              sending || !price || (pricingType === "range" && !priceMax) || !!existingProposal
+            }
             className="w-full h-14 rounded-2xl bg-primary text-primary-foreground font-semibold flex items-center justify-center gap-2 shadow-card disabled:opacity-50"
           >
-            <DollarSign className="h-5 w-5" /> {existingProposal ? "Orçamento já enviado" : sending ? "Enviando..." : "Enviar orçamento"}
+            <DollarSign className="h-5 w-5" />{" "}
+            {existingProposal
+              ? "Orçamento já enviado"
+              : sending
+                ? "Enviando..."
+                : "Enviar orçamento"}
           </button>
         </div>
       </PhoneFrame>
@@ -455,13 +536,33 @@ function ProOrder() {
                 <p className="text-xs text-muted-foreground mb-2">{order?.profiles?.full_name}</p>
                 <p className="text-sm">{order?.service_requests?.description}</p>
                 {order?.service_requests?.contact_name && (
-                  <p className="text-xs text-muted-foreground mt-3 border-t border-border pt-3"><span className="font-semibold text-foreground">Contato no local: </span>{order.service_requests.contact_name} · {order.service_requests.contact_phone}{order.service_requests.attendee_name ? ` · Recebe: ${order.service_requests.attendee_name}` : ""}</p>
+                  <p className="text-xs text-muted-foreground mt-3 border-t border-border pt-3">
+                    <span className="font-semibold text-foreground">Contato no local: </span>
+                    {order.service_requests.contact_name} · {order.service_requests.contact_phone}
+                    {order.service_requests.attendee_name
+                      ? ` · Recebe: ${order.service_requests.attendee_name}`
+                      : ""}
+                  </p>
                 )}
               </div>
               <div className="rounded-2xl bg-trust-soft/50 border border-trust/20 p-4 space-y-2">
                 <p className="text-sm font-semibold">Valor final do serviço</p>
-                <p className="text-xs text-muted-foreground">{order?.pricing_type === "range" ? `Faixa aceita: R$ ${Number(order.quoted_price_min).toFixed(2)} a R$ ${Number(order.quoted_price_max).toFixed(2)}.` : `Valor fechado aceito: R$ ${Number(order?.quoted_price_min ?? 0).toFixed(2)}.`} Informe o total antes de enviar a conclusão.</p>
-                <div className="flex items-center gap-2"><span className="text-sm">R$</span><input value={finalPrice} onChange={(e) => setFinalPrice(e.target.value.replace(/[^0-9.]/g, ""))} placeholder="Total realizado" inputMode="decimal" className="flex-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" /></div>
+                <p className="text-xs text-muted-foreground">
+                  {order?.pricing_type === "range"
+                    ? `Faixa aceita: R$ ${Number(order.quoted_price_min).toFixed(2)} a R$ ${Number(order.quoted_price_max).toFixed(2)}.`
+                    : `Valor fechado aceito: R$ ${Number(order?.quoted_price_min ?? 0).toFixed(2)}.`}{" "}
+                  Informe o total antes de enviar a conclusão.
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">R$</span>
+                  <input
+                    value={finalPrice}
+                    onChange={(e) => setFinalPrice(e.target.value.replace(/[^0-9.]/g, ""))}
+                    placeholder="Total realizado"
+                    inputMode="decimal"
+                    className="flex-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                  />
+                </div>
               </div>
               <div className="rounded-2xl bg-card border border-border p-4">
                 <p className="text-xs font-bold uppercase tracking-widest text-primary mb-2">
@@ -559,7 +660,12 @@ function ProOrder() {
               disabled={sending || photos.length === 0 || !finalPrice}
               className="w-full h-14 rounded-2xl bg-primary text-primary-foreground font-semibold flex items-center justify-center gap-2 shadow-card disabled:opacity-50"
             >
-              <Check className="h-4 w-4" /> {photos.length === 0 ? "Envie uma foto para concluir" : !finalPrice ? "Informe o valor final" : "Enviar para confirmação"}
+              <Check className="h-4 w-4" />{" "}
+              {photos.length === 0
+                ? "Envie uma foto para concluir"
+                : !finalPrice
+                  ? "Informe o valor final"
+                  : "Enviar para confirmação"}
             </button>
           )}
           {(waitingPayment || done) && (
@@ -581,19 +687,50 @@ function ProOrder() {
       <div className="flex-1 overflow-y-auto px-5 py-5 pb-6">
         <div className="flex items-center gap-2 mb-4">
           <Send className="h-4 w-4 text-primary" />
-          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Candidaturas enviadas</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            Candidaturas enviadas
+          </p>
         </div>
-        {loadingProposals && <p className="text-sm text-muted-foreground text-center py-8">Carregando candidaturas...</p>}
+        {loadingProposals && (
+          <p className="text-sm text-muted-foreground text-center py-8">
+            Carregando candidaturas...
+          </p>
+        )}
         {!loadingProposals && myProposals.length === 0 && (
-          <div className="py-16 text-center text-muted-foreground"><Inbox className="h-10 w-10 mx-auto mb-3 opacity-50" /><p className="text-sm">Você ainda não enviou nenhum orçamento.</p><p className="text-xs mt-1">As oportunidades compatíveis aparecem no painel.</p></div>
+          <div className="py-16 text-center text-muted-foreground">
+            <Inbox className="h-10 w-10 mx-auto mb-3 opacity-50" />
+            <p className="text-sm">Você ainda não enviou nenhum orçamento.</p>
+            <p className="text-xs mt-1">As oportunidades compatíveis aparecem no painel.</p>
+          </div>
         )}
         <div className="space-y-3">
           {myProposals.map((proposal) => (
-            <Link key={proposal.id} to="/pro/orders" search={{ requestId: proposal.request_id }} className="block rounded-2xl border border-border bg-card p-4 shadow-card">
+            <Link
+              key={proposal.id}
+              to="/pro/orders"
+              search={{ requestId: proposal.request_id }}
+              className="block rounded-2xl border border-border bg-card p-4 shadow-card"
+            >
               <div className="flex items-start gap-3">
-                <div className="h-11 w-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center"><Wrench className="h-5 w-5" /></div>
-                <div className="flex-1 min-w-0"><p className="font-semibold text-sm truncate">{proposal.service_requests?.service_categories?.label ?? "Serviço"}</p><p className="text-xs text-muted-foreground truncate mt-0.5">{proposal.service_requests?.description ?? "Solicitação"}</p><p className="text-xs font-medium text-primary mt-2">Seu orçamento: R$ {Number(proposal.price).toFixed(2)}</p></div>
-                <span className={`text-[10px] text-right font-bold rounded-full px-2 py-1 ${proposal.status === "aceita" ? "bg-emerald-100 text-emerald-700" : proposal.status === "pendente" ? "bg-amber-100 text-amber-700" : "bg-secondary text-muted-foreground"}`}>{PROPOSAL_STATUS[proposal.status] ?? proposal.status}</span>
+                <div className="h-11 w-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                  <Wrench className="h-5 w-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm truncate">
+                    {proposal.service_requests?.service_categories?.label ?? "Serviço"}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">
+                    {proposal.service_requests?.description ?? "Solicitação"}
+                  </p>
+                  <p className="text-xs font-medium text-primary mt-2">
+                    Seu orçamento: R$ {Number(proposal.price).toFixed(2)}
+                  </p>
+                </div>
+                <span
+                  className={`text-[10px] text-right font-bold rounded-full px-2 py-1 ${proposal.status === "aceita" ? "bg-emerald-100 text-emerald-700" : proposal.status === "pendente" ? "bg-amber-100 text-amber-700" : "bg-secondary text-muted-foreground"}`}
+                >
+                  {PROPOSAL_STATUS[proposal.status] ?? proposal.status}
+                </span>
               </div>
             </Link>
           ))}

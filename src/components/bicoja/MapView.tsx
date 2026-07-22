@@ -28,7 +28,15 @@ type Props = {
   height?: number;
 };
 
-export function MapView({ lat, lng, secondaryLat = null, secondaryLng = null, onChange, draggable = false, height = 208 }: Props) {
+export function MapView({
+  lat,
+  lng,
+  secondaryLat = null,
+  secondaryLng = null,
+  onChange,
+  draggable = false,
+  height = 208,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
@@ -47,8 +55,13 @@ export function MapView({ lat, lng, secondaryLat = null, secondaryLng = null, on
 
     const marker = L.marker(center, { icon: pinIcon, draggable }).addTo(map);
     if (secondaryLat != null && secondaryLng != null) {
-      secondaryMarkerRef.current = L.marker([secondaryLat, secondaryLng], { icon: liveProviderIcon }).addTo(map);
-      map.fitBounds(L.latLngBounds([center, [secondaryLat, secondaryLng]]), { padding: [28, 28], maxZoom: 15 });
+      secondaryMarkerRef.current = L.marker([secondaryLat, secondaryLng], {
+        icon: liveProviderIcon,
+      }).addTo(map);
+      map.fitBounds(L.latLngBounds([center, [secondaryLat, secondaryLng]]), {
+        padding: [28, 28],
+        maxZoom: 15,
+      });
     }
     if (draggable && onChange) {
       marker.on("dragend", () => {
@@ -88,12 +101,20 @@ export function MapView({ lat, lng, secondaryLat = null, secondaryLng = null, on
       return;
     }
     if (!secondaryMarkerRef.current) {
-      secondaryMarkerRef.current = L.marker([secondaryLat, secondaryLng], { icon: liveProviderIcon }).addTo(mapRef.current);
+      secondaryMarkerRef.current = L.marker([secondaryLat, secondaryLng], {
+        icon: liveProviderIcon,
+      }).addTo(mapRef.current);
     } else {
       secondaryMarkerRef.current.setLatLng([secondaryLat, secondaryLng]);
     }
     if (lat != null && lng != null) {
-      mapRef.current.fitBounds(L.latLngBounds([[lat, lng], [secondaryLat, secondaryLng]]), { padding: [28, 28], maxZoom: 15 });
+      mapRef.current.fitBounds(
+        L.latLngBounds([
+          [lat, lng],
+          [secondaryLat, secondaryLng],
+        ]),
+        { padding: [28, 28], maxZoom: 15 },
+      );
     } else {
       mapRef.current.setView([secondaryLat, secondaryLng], Math.max(mapRef.current.getZoom(), 15));
     }

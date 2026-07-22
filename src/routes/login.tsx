@@ -108,7 +108,9 @@ function Login() {
       setLat(found.lat);
       setLng(found.lng);
     } catch (error) {
-      setAddressError(error instanceof Error ? error.message : "Não foi possível obter sua localização.");
+      setAddressError(
+        error instanceof Error ? error.message : "Não foi possível obter sua localização.",
+      );
     }
     setLocating(false);
   }
@@ -122,7 +124,9 @@ function Login() {
       setNeighborhood(found.neighborhood);
       setCity(found.city);
       setState(found.state);
-      const geocoded = await geocodeAddressText(`${found.street}, ${found.city}, ${found.state}, Brasil`);
+      const geocoded = await geocodeAddressText(
+        `${found.street}, ${found.city}, ${found.state}, Brasil`,
+      );
       if (geocoded) {
         setLat(geocoded.lat);
         setLng(geocoded.lng);
@@ -184,7 +188,16 @@ function Login() {
           toast.error("A foto de perfil é obrigatória para prestadores.");
           return;
         }
-        if (!cep || !street.trim() || !houseNumber.trim() || !neighborhood.trim() || !city.trim() || !state.trim() || lat == null || lng == null) {
+        if (
+          !cep ||
+          !street.trim() ||
+          !houseNumber.trim() ||
+          !neighborhood.trim() ||
+          !city.trim() ||
+          !state.trim() ||
+          lat == null ||
+          lng == null
+        ) {
           toast.error("Preencha o endereço completo e confirme a localização pelo GPS ou CEP.");
           return;
         }
@@ -228,7 +241,10 @@ function Login() {
       // Após a migration, o aceite passa a ficar registrado no perfil.
       await supabase
         .from("profiles")
-        .update({ terms_accepted_at: new Date().toISOString(), provider_terms_accepted_at: role === "prestador" ? new Date().toISOString() : null })
+        .update({
+          terms_accepted_at: new Date().toISOString(),
+          provider_terms_accepted_at: role === "prestador" ? new Date().toISOString() : null,
+        })
         .eq("id", data.session.user.id);
 
       if (role === "prestador") {
@@ -237,14 +253,18 @@ function Login() {
           avatarUrl = await uploadPhoto(data.session.user.id, "avatars", profilePhoto!);
         } catch (error) {
           setSending(false);
-          toast.error(error instanceof Error ? error.message : "Não foi possível enviar sua foto de perfil.");
+          toast.error(
+            error instanceof Error ? error.message : "Não foi possível enviar sua foto de perfil.",
+          );
           return;
         }
         const { error: providerError } = await supabase.from("provider_profiles").insert({
           profile_id: data.session.user.id,
           headline: headline || null,
           city: city.trim(),
-          specialties: categories.filter((category) => selectedCategoryIds.includes(category.id)).map((category) => category.label),
+          specialties: categories
+            .filter((category) => selectedCategoryIds.includes(category.id))
+            .map((category) => category.label),
           cep: cep.replace(/\D/g, ""),
           street: street.trim(),
           number: houseNumber.trim(),
@@ -258,9 +278,12 @@ function Login() {
           toast.error(providerError.message);
           return;
         }
-        const { error: servicesError } = await supabase
-          .from("provider_services")
-          .insert(selectedCategoryIds.map((category_id) => ({ provider_id: data.session.user.id, category_id })));
+        const { error: servicesError } = await supabase.from("provider_services").insert(
+          selectedCategoryIds.map((category_id) => ({
+            provider_id: data.session.user.id,
+            category_id,
+          })),
+        );
         if (servicesError) {
           setSending(false);
           toast.error(`Não foi possível salvar as categorias: ${servicesError.message}`);
@@ -400,7 +423,9 @@ function Login() {
             </h1>
           )}
           <p className="text-muted-foreground mt-2 text-sm">
-            {mode === "entrar" ? "Acesse sua conta para continuar." : "Rápido, seguro e sem burocracia."}
+            {mode === "entrar"
+              ? "Acesse sua conta para continuar."
+              : "Rápido, seguro e sem burocracia."}
           </p>
         </div>
 
@@ -503,21 +528,44 @@ function Login() {
               </Field>
               <section className="rounded-2xl border border-border bg-card p-4">
                 <p className="text-sm font-semibold">Categorias de serviço</p>
-                <p className="text-[11px] text-muted-foreground mt-1 mb-3">Selecione uma ou mais categorias que você atende. Elas determinam quais solicitações aparecerão para você.</p>
+                <p className="text-[11px] text-muted-foreground mt-1 mb-3">
+                  Selecione uma ou mais categorias que você atende. Elas determinam quais
+                  solicitações aparecerão para você.
+                </p>
                 <div className="grid grid-cols-2 gap-2">
                   {categories.map((category) => {
                     const Icon = categoryIcon(category.icon);
                     const selected = selectedCategoryIds.includes(category.id);
-                    return <button key={category.id} type="button" onClick={() => setSelectedCategoryIds((current) => selected ? current.filter((id) => id !== category.id) : [...current, category.id])} className={`min-h-11 rounded-xl border px-3 text-left text-xs font-semibold flex items-center gap-2 ${selected ? "border-primary bg-primary/10 text-primary" : "border-border bg-background text-foreground"}`}><Icon className="h-4 w-4" />{category.label}</button>;
+                    return (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() =>
+                          setSelectedCategoryIds((current) =>
+                            selected
+                              ? current.filter((id) => id !== category.id)
+                              : [...current, category.id],
+                          )
+                        }
+                        className={`min-h-11 rounded-xl border px-3 text-left text-xs font-semibold flex items-center gap-2 ${selected ? "border-primary bg-primary/10 text-primary" : "border-border bg-background text-foreground"}`}
+                      >
+                        <Icon className="h-4 w-4" />
+                        {category.label}
+                      </button>
+                    );
                   })}
                 </div>
-                {categories.length === 0 && <p className="text-xs text-muted-foreground">Carregando categorias...</p>}
+                {categories.length === 0 && (
+                  <p className="text-xs text-muted-foreground">Carregando categorias...</p>
+                )}
               </section>
               <section className="rounded-2xl border border-border bg-card p-4 space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold">Onde você atende?</p>
-                    <p className="text-[11px] text-muted-foreground">Endereço completo obrigatório para ordenar pedidos por proximidade.</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Endereço completo obrigatório para ordenar pedidos por proximidade.
+                    </p>
                   </div>
                   <button
                     type="button"
@@ -546,31 +594,90 @@ function Login() {
                   </button>
                 </div>
                 <div className="flex gap-2">
-                  <input value={street} onChange={(event) => setStreet(event.target.value)} required placeholder="Rua / avenida" className="flex-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" />
-                  <input value={houseNumber} onChange={(event) => setHouseNumber(event.target.value)} required placeholder="Número" className="w-24 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" />
+                  <input
+                    value={street}
+                    onChange={(event) => setStreet(event.target.value)}
+                    required
+                    placeholder="Rua / avenida"
+                    className="flex-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                  />
+                  <input
+                    value={houseNumber}
+                    onChange={(event) => setHouseNumber(event.target.value)}
+                    required
+                    placeholder="Número"
+                    className="w-24 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                  />
                 </div>
-                <input value={neighborhood} onChange={(event) => setNeighborhood(event.target.value)} required placeholder="Bairro" className="w-full h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" />
+                <input
+                  value={neighborhood}
+                  onChange={(event) => setNeighborhood(event.target.value)}
+                  required
+                  placeholder="Bairro"
+                  className="w-full h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                />
                 <div className="flex gap-2">
-                  <input value={city} onChange={(event) => setCity(event.target.value)} required placeholder="Cidade" className="flex-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" />
-                  <input value={state} onChange={(event) => setState(event.target.value.toUpperCase().slice(0, 2))} required placeholder="UF" className="w-20 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" />
+                  <input
+                    value={city}
+                    onChange={(event) => setCity(event.target.value)}
+                    required
+                    placeholder="Cidade"
+                    className="flex-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                  />
+                  <input
+                    value={state}
+                    onChange={(event) => setState(event.target.value.toUpperCase().slice(0, 2))}
+                    required
+                    placeholder="UF"
+                    className="w-20 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                  />
                 </div>
-                {addressError && <p className="text-xs text-destructive">{addressError} Preencha manualmente pelo CEP.</p>}
-                {lat != null && lng != null && <p className="flex items-center gap-1 text-[11px] text-trust"><MapPin className="h-3.5 w-3.5" /> Localização confirmada.</p>}
+                {addressError && (
+                  <p className="text-xs text-destructive">
+                    {addressError} Preencha manualmente pelo CEP.
+                  </p>
+                )}
+                {lat != null && lng != null && (
+                  <p className="flex items-center gap-1 text-[11px] text-trust">
+                    <MapPin className="h-3.5 w-3.5" /> Localização confirmada.
+                  </p>
+                )}
               </section>
               <section>
-                <p className="text-xs font-medium text-muted-foreground px-1 mb-1 block">Foto de perfil</p>
-                <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={(event) => setProfilePhoto(event.target.files?.[0] ?? null)} />
+                <p className="text-xs font-medium text-muted-foreground px-1 mb-1 block">
+                  Foto de perfil
+                </p>
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(event) => setProfilePhoto(event.target.files?.[0] ?? null)}
+                />
                 <button
                   type="button"
                   onClick={() => photoInputRef.current?.click()}
                   className="w-full min-h-20 rounded-2xl border border-dashed border-primary/40 bg-primary/5 px-4 flex items-center gap-3 text-left"
                 >
                   {profilePhoto ? (
-                    <img src={URL.createObjectURL(profilePhoto)} alt="Prévia" className="h-14 w-14 rounded-2xl object-cover" />
+                    <img
+                      src={URL.createObjectURL(profilePhoto)}
+                      alt="Prévia"
+                      className="h-14 w-14 rounded-2xl object-cover"
+                    />
                   ) : (
-                    <span className="h-14 w-14 rounded-2xl bg-secondary text-primary flex items-center justify-center"><Camera className="h-6 w-6" /></span>
+                    <span className="h-14 w-14 rounded-2xl bg-secondary text-primary flex items-center justify-center">
+                      <Camera className="h-6 w-6" />
+                    </span>
                   )}
-                  <span><span className="block text-sm font-semibold">{profilePhoto ? "Foto selecionada" : "Adicionar foto de perfil"}</span><span className="block text-xs text-muted-foreground mt-0.5">Obrigatória para clientes reconhecerem você.</span></span>
+                  <span>
+                    <span className="block text-sm font-semibold">
+                      {profilePhoto ? "Foto selecionada" : "Adicionar foto de perfil"}
+                    </span>
+                    <span className="block text-xs text-muted-foreground mt-0.5">
+                      Obrigatória para clientes reconhecerem você.
+                    </span>
+                  </span>
                 </button>
               </section>
               <p className="text-[11px] text-muted-foreground px-1">
@@ -607,7 +714,23 @@ function Login() {
           {mode === "entrar" ? "Ainda não tem conta? Criar conta" : "Já tem conta? Entrar"}
         </button>
 
-        {mode === "criar" && <label className="flex items-start gap-2 text-[11px] text-muted-foreground mt-5 leading-relaxed text-left"><input type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} className="mt-0.5" /> <span>Li e aceito os <Link to="/terms" className="text-primary font-semibold">Termos de Uso e regras de pagamento protegido</Link>.</span></label>}
+        {mode === "criar" && (
+          <label className="flex items-start gap-2 text-[11px] text-muted-foreground mt-5 leading-relaxed text-left">
+            <input
+              type="checkbox"
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
+              className="mt-0.5"
+            />{" "}
+            <span>
+              Li e aceito os{" "}
+              <Link to="/terms" className="text-primary font-semibold">
+                Termos de Uso e regras de pagamento protegido
+              </Link>
+              .
+            </span>
+          </label>
+        )}
         <p className="text-[11px] text-muted-foreground text-center mt-3 leading-relaxed">
           Ao continuar você concorda com nossos{" "}
           <span className="text-primary font-medium">Termos</span> e{" "}

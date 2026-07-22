@@ -1,14 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import {
-  BadgeCheck,
-  MapPin,
-  Search as SearchIcon,
-  Star,
-  TrendingUp,
-  Users,
-} from "lucide-react";
+import { BadgeCheck, MapPin, Search as SearchIcon, Star, TrendingUp, Users } from "lucide-react";
 import { PhoneFrame } from "@/components/bicoja/PhoneFrame";
 import { BottomNav } from "@/components/bicoja/BottomNav";
 import { useCategories, categoryIcon } from "@/lib/categories";
@@ -66,7 +59,8 @@ function SearchPage() {
     return providerRows.filter((row) => {
       if (seen.has(row.provider_id)) return false;
       seen.add(row.provider_id);
-      const name = row.provider_profiles?.profiles?.full_name ?? row.provider_profiles?.headline ?? "";
+      const name =
+        row.provider_profiles?.profiles?.full_name ?? row.provider_profiles?.headline ?? "";
       return !normalized || name.toLocaleLowerCase("pt-BR").includes(normalized);
     });
   }, [providerRows, term]);
@@ -96,13 +90,21 @@ function SearchPage() {
             </h2>
           </div>
           <div className="flex flex-wrap gap-2">
-            {["Vazamento", "Faxina", "Chuveiro elétrico", "Pintura de quarto", "Poda de árvore", "Chaveiro 24h"].map(
-              (item) => (
-                <span key={item} className="h-9 px-4 rounded-full bg-secondary text-sm font-medium flex items-center">
-                  {item}
-                </span>
-              ),
-            )}
+            {[
+              "Vazamento",
+              "Faxina",
+              "Chuveiro elétrico",
+              "Pintura de quarto",
+              "Poda de árvore",
+              "Chaveiro 24h",
+            ].map((item) => (
+              <span
+                key={item}
+                className="h-9 px-4 rounded-full bg-secondary text-sm font-medium flex items-center"
+              >
+                {item}
+              </span>
+            ))}
           </div>
         </section>
 
@@ -115,10 +117,20 @@ function SearchPage() {
               </h2>
             </div>
             <div className="space-y-3">
-              {isLoading && <p className="text-sm text-muted-foreground py-4 text-center">Buscando prestadores...</p>}
-              {error && <p className="text-sm text-destructive py-4 text-center">Não foi possível carregar os prestadores agora.</p>}
+              {isLoading && (
+                <p className="text-sm text-muted-foreground py-4 text-center">
+                  Buscando prestadores...
+                </p>
+              )}
+              {error && (
+                <p className="text-sm text-destructive py-4 text-center">
+                  Não foi possível carregar os prestadores agora.
+                </p>
+              )}
               {!isLoading && !error && providers.length === 0 && (
-                <p className="text-sm text-muted-foreground py-4 text-center">Ainda não há prestadores cadastrados nesta categoria.</p>
+                <p className="text-sm text-muted-foreground py-4 text-center">
+                  Ainda não há prestadores cadastrados nesta categoria.
+                </p>
               )}
               {providers.map((row) => {
                 const provider = row.provider_profiles;
@@ -130,18 +142,35 @@ function SearchPage() {
                     params={{ providerId: row.provider_id }}
                     className="flex items-center gap-3 rounded-2xl bg-card border border-border shadow-card p-4"
                   >
-                    <ProfileAvatar name={name} src={provider?.profiles?.avatar_url} className="h-11 w-11 rounded-2xl text-sm" />
+                    <ProfileAvatar
+                      name={name}
+                      src={provider?.profiles?.avatar_url}
+                      className="h-11 w-11 rounded-2xl text-sm"
+                    />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1">
                         <p className="font-semibold text-sm truncate">{name}</p>
-                        {provider?.verification_status === "verificado" && <BadgeCheck className="h-4 w-4 text-trust shrink-0" />}
+                        {provider?.verification_status === "verificado" && (
+                          <BadgeCheck className="h-4 w-4 text-trust shrink-0" />
+                        )}
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                        <span className="flex items-center gap-0.5"><Star className="h-3.5 w-3.5 fill-warn text-warn" /> {provider?.rating_avg ?? 0}</span>
-                        {provider?.city && <span className="flex items-center gap-0.5 truncate"><MapPin className="h-3.5 w-3.5" /> {provider.city}</span>}
+                        <span className="flex items-center gap-0.5">
+                          <Star className="h-3.5 w-3.5 fill-warn text-warn" />{" "}
+                          {provider?.rating_avg ?? 0}
+                        </span>
+                        {provider?.city && (
+                          <span className="flex items-center gap-0.5 truncate">
+                            <MapPin className="h-3.5 w-3.5" /> {provider.city}
+                          </span>
+                        )}
                       </div>
                     </div>
-                    {row.price_from != null && <span className="text-[11px] font-semibold text-primary">A partir de R$ {Number(row.price_from).toFixed(2)}</span>}
+                    {row.price_from != null && (
+                      <span className="text-[11px] font-semibold text-primary">
+                        A partir de R$ {Number(row.price_from).toFixed(2)}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -150,7 +179,9 @@ function SearchPage() {
         )}
 
         <section className="mt-7 px-5">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">Todas as categorias</h2>
+          <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">
+            Todas as categorias
+          </h2>
           <div className="grid grid-cols-2 gap-2">
             {categories.map((item) => {
               const Icon = categoryIcon(item.icon);

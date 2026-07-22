@@ -65,7 +65,11 @@ function Profile() {
         <div className="bg-hero text-primary-foreground px-5 pt-10 pb-8 relative overflow-hidden">
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
           <div className="relative flex items-center gap-4">
-            <ProfileAvatar name={name} src={profile?.avatar_url} className="h-16 w-16 rounded-2xl text-2xl border border-white/20" />
+            <ProfileAvatar
+              name={name}
+              src={profile?.avatar_url}
+              className="h-16 w-16 rounded-2xl text-2xl border border-white/20"
+            />
             <div className="flex-1">
               <p className="text-xl font-extrabold font-[Manrope] capitalize">{name}</p>
               <p className="text-sm opacity-80">{profile?.email ?? session?.user.email ?? "—"}</p>

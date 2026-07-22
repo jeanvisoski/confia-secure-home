@@ -20,7 +20,9 @@ export const Route = createFileRoute("/rate")({
 type OrderForRating = {
   id: string;
   provider_id: string;
-  provider_profiles: { profiles: { full_name: string | null; avatar_url: string | null } | null } | null;
+  provider_profiles: {
+    profiles: { full_name: string | null; avatar_url: string | null } | null;
+  } | null;
 };
 
 function useOrderForRating(orderId: string | undefined) {
@@ -101,11 +103,23 @@ function Rate() {
 
   return (
     <PhoneFrame>
-      <AppHeader title="Avaliar serviço" back right={<Link to="/orders" className="text-xs font-semibold text-primary px-1">Pedidos</Link>} />
+      <AppHeader
+        title="Avaliar serviço"
+        back
+        right={
+          <Link to="/orders" className="text-xs font-semibold text-primary px-1">
+            Pedidos
+          </Link>
+        }
+      />
 
       <div className="flex-1 overflow-y-auto px-5 pt-6 pb-32">
         <div className="text-center">
-          <ProfileAvatar name={providerName} src={order?.provider_profiles?.profiles?.avatar_url} className="h-20 w-20 rounded-3xl text-2xl mx-auto mb-3" />
+          <ProfileAvatar
+            name={providerName}
+            src={order?.provider_profiles?.profiles?.avatar_url}
+            className="h-20 w-20 rounded-3xl text-2xl mx-auto mb-3"
+          />
           <h2 className="text-xl font-extrabold font-[Manrope]">
             Como foi com {providerName.split(" ")[0]}?
           </h2>

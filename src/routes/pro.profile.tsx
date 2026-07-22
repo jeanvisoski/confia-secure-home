@@ -2,7 +2,18 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { toast } from "sonner";
-import { BadgeCheck, Star, LogOut, LocateFixed, X, Plus, Camera, MapPin, Pencil, FileText } from "lucide-react";
+import {
+  BadgeCheck,
+  Star,
+  LogOut,
+  LocateFixed,
+  X,
+  Plus,
+  Camera,
+  MapPin,
+  Pencil,
+  FileText,
+} from "lucide-react";
 import { PhoneFrame } from "@/components/bicoja/PhoneFrame";
 import { BottomNav } from "@/components/bicoja/BottomNav";
 import { AppHeader } from "@/components/bicoja/AppHeader";
@@ -106,13 +117,23 @@ function useReviews(providerId: string | undefined) {
   });
 }
 
-type VerificationDocument = { id: string; document_type: string; status: string; created_at: string };
+type VerificationDocument = {
+  id: string;
+  document_type: string;
+  status: string;
+  created_at: string;
+};
 
 function useVerificationDocuments(providerId: string | undefined) {
   return useQuery({
     queryKey: ["provider-verification-documents", providerId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("provider_verification_documents").select("id, document_type, status, created_at").eq("provider_id", providerId).order("created_at", { ascending: false }).returns<VerificationDocument[]>();
+      const { data, error } = await supabase
+        .from("provider_verification_documents")
+        .select("id, document_type, status, created_at")
+        .eq("provider_id", providerId)
+        .order("created_at", { ascending: false })
+        .returns<VerificationDocument[]>();
       if (error) throw error;
       return data;
     },
@@ -213,7 +234,10 @@ function ProProfile() {
     setSavingPhoto(true);
     try {
       const avatarUrl = await uploadPhoto(userId, "avatars", file);
-      const { error } = await supabase.from("profiles").update({ avatar_url: avatarUrl }).eq("id", userId);
+      const { error } = await supabase
+        .from("profiles")
+        .update({ avatar_url: avatarUrl })
+        .eq("id", userId);
       if (error) throw error;
       toast.success("Foto de perfil atualizada.");
       await queryClient.invalidateQueries({ queryKey: ["pro-profile", userId] });
@@ -232,12 +256,18 @@ function ProProfile() {
     try {
       const extension = file.name.split(".").pop() || "bin";
       const path = `${userId}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
-      const { error: uploadError } = await supabase.storage.from("provider-documents").upload(path, file, { contentType: file.type, upsert: false });
+      const { error: uploadError } = await supabase.storage
+        .from("provider-documents")
+        .upload(path, file, { contentType: file.type, upsert: false });
       if (uploadError) throw uploadError;
-      const { error } = await supabase.from("provider_verification_documents").insert({ provider_id: userId, document_type: "identidade", storage_path: path });
+      const { error } = await supabase
+        .from("provider_verification_documents")
+        .insert({ provider_id: userId, document_type: "identidade", storage_path: path });
       if (error) throw error;
       toast.success("Documento enviado para analise.");
-      await queryClient.invalidateQueries({ queryKey: ["provider-verification-documents", userId] });
+      await queryClient.invalidateQueries({
+        queryKey: ["provider-verification-documents", userId],
+      });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Nao foi possivel enviar o documento.");
     }
@@ -252,9 +282,14 @@ function ProProfile() {
       setNeighborhood(found.neighborhood);
       setCity(found.city);
       setState(found.state);
-      const geo = await geocodeAddressText(`${found.street}, ${found.city}, ${found.state}, Brasil`);
+      const geo = await geocodeAddressText(
+        `${found.street}, ${found.city}, ${found.state}, Brasil`,
+      );
       if (geo && userId) {
-        await supabase.from("provider_profiles").update({ lat: geo.lat, lng: geo.lng }).eq("profile_id", userId);
+        await supabase
+          .from("provider_profiles")
+          .update({ lat: geo.lat, lng: geo.lng })
+          .eq("profile_id", userId);
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Não foi possível consultar o CEP.");
@@ -263,24 +298,39 @@ function ProProfile() {
   }
 
   async function saveAddress() {
-    if (!userId || !cep || !street.trim() || !houseNumber.trim() || !neighborhood.trim() || !city.trim() || !state.trim()) {
+    if (
+      !userId ||
+      !cep ||
+      !street.trim() ||
+      !houseNumber.trim() ||
+      !neighborhood.trim() ||
+      !city.trim() ||
+      !state.trim()
+    ) {
       toast.error("Preencha o endereço completo.");
       return;
     }
     setSavingAddress(true);
     const { error } = await supabase
       .from("provider_profiles")
-      .update({ cep: cep.replace(/\D/g, ""), street: street.trim(), number: houseNumber.trim(), neighborhood: neighborhood.trim(), city: city.trim(), state: state.trim() })
+      .update({
+        cep: cep.replace(/\D/g, ""),
+        street: street.trim(),
+        number: houseNumber.trim(),
+        neighborhood: neighborhood.trim(),
+        city: city.trim(),
+        state: state.trim(),
+      })
       .eq("profile_id", userId);
     setSavingAddress(false);
     if (error) {
       toast.error(error.message);
       return;
     }
-      toast.success("Endereço atualizado.");
-      setEditingAddress(false);
-      await queryClient.invalidateQueries({ queryKey: ["pro-profile", userId] });
-      await queryClient.invalidateQueries({ queryKey: ["provider-profile", userId] });
+    toast.success("Endereço atualizado.");
+    setEditingAddress(false);
+    await queryClient.invalidateQueries({ queryKey: ["pro-profile", userId] });
+    await queryClient.invalidateQueries({ queryKey: ["provider-profile", userId] });
   }
 
   async function addService() {
@@ -330,7 +380,13 @@ function ProProfile() {
             </div>
           )}
           <div className="relative flex flex-col items-center text-center">
-            <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={changeProfilePhoto} />
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={changeProfilePhoto}
+            />
             <button
               type="button"
               onClick={() => photoInputRef.current?.click()}
@@ -339,7 +395,11 @@ function ProProfile() {
               aria-label="Alterar foto de perfil"
             >
               {provider?.profiles?.avatar_url ? (
-                <img src={provider.profiles.avatar_url} alt="Foto de perfil" className="h-full w-full object-cover" />
+                <img
+                  src={provider.profiles.avatar_url}
+                  alt="Foto de perfil"
+                  className="h-full w-full object-cover"
+                />
               ) : (
                 <span className="h-full w-full flex items-center justify-center text-3xl font-extrabold">
                   {(provider?.profiles?.full_name || provider?.headline || "?")[0]?.toUpperCase()}
@@ -422,7 +482,9 @@ function ProProfile() {
                   max={300}
                   step={5}
                   value={radiusKm}
-                  onChange={(e) => setRadiusKm(Math.max(5, Math.min(300, Number(e.target.value) || 5)))}
+                  onChange={(e) =>
+                    setRadiusKm(Math.max(5, Math.min(300, Number(e.target.value) || 5)))
+                  }
                   className="h-10 w-24 rounded-xl border border-border bg-background px-3 text-sm font-semibold outline-none"
                   aria-label="Raio em quilômetros"
                 />
@@ -445,17 +507,46 @@ function ProProfile() {
 
         <section className="px-5 mt-6">
           <div className="rounded-2xl bg-card border border-border p-4">
-            <input ref={documentInputRef} type="file" accept="image/*,.pdf" className="hidden" onChange={uploadVerificationDocument} />
-            <div className="flex items-start gap-3"><FileText className="h-5 w-5 text-primary mt-0.5" /><div className="flex-1"><p className="text-sm font-semibold">Verificacao de identidade</p><p className="text-xs text-muted-foreground mt-1">Envie documento com foto ou comprovante profissional. Apenas a equipe BICOJA tera acesso.</p></div></div>
-            <button onClick={() => documentInputRef.current?.click()} disabled={sendingDocument} className="mt-3 w-full h-10 rounded-xl border border-primary text-primary text-xs font-semibold disabled:opacity-50">{sendingDocument ? "Enviando..." : "Enviar documento"}</button>
-            {verificationDocuments.length > 0 && <p className="mt-3 text-xs text-muted-foreground">{verificationDocuments.length} documento(s) enviado(s) · ultimo status: {verificationDocuments[0].status.replace("_", " ")}</p>}
+            <input
+              ref={documentInputRef}
+              type="file"
+              accept="image/*,.pdf"
+              className="hidden"
+              onChange={uploadVerificationDocument}
+            />
+            <div className="flex items-start gap-3">
+              <FileText className="h-5 w-5 text-primary mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold">Verificacao de identidade</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Envie documento com foto ou comprovante profissional. Apenas a equipe BICOJA tera
+                  acesso.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => documentInputRef.current?.click()}
+              disabled={sendingDocument}
+              className="mt-3 w-full h-10 rounded-xl border border-primary text-primary text-xs font-semibold disabled:opacity-50"
+            >
+              {sendingDocument ? "Enviando..." : "Enviar documento"}
+            </button>
+            {verificationDocuments.length > 0 && (
+              <p className="mt-3 text-xs text-muted-foreground">
+                {verificationDocuments.length} documento(s) enviado(s) · ultimo status:{" "}
+                {verificationDocuments[0].status.replace("_", " ")}
+              </p>
+            )}
           </div>
         </section>
 
         <section className="px-5 mt-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-bold">Endereço de atendimento</h2>
-            <button onClick={() => setEditingAddress((value) => !value)} className="text-xs font-semibold text-primary flex items-center gap-1">
+            <button
+              onClick={() => setEditingAddress((value) => !value)}
+              className="text-xs font-semibold text-primary flex items-center gap-1"
+            >
               <Pencil className="h-3.5 w-3.5" /> {editingAddress ? "Cancelar" : "Editar"}
             </button>
           </div>
@@ -463,18 +554,83 @@ function ProProfile() {
             {editingAddress ? (
               <div className="space-y-2">
                 <div className="flex gap-2">
-                  <input value={cep} onChange={(event) => setCep(formatCep(event.target.value))} placeholder="CEP" inputMode="numeric" className="flex-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" />
-                  <button onClick={findCep} disabled={cepLoading || cep.replace(/\D/g, "").length !== 8} className="h-11 px-3 rounded-xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-40">{cepLoading ? "..." : "Buscar"}</button>
+                  <input
+                    value={cep}
+                    onChange={(event) => setCep(formatCep(event.target.value))}
+                    placeholder="CEP"
+                    inputMode="numeric"
+                    className="flex-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                  />
+                  <button
+                    onClick={findCep}
+                    disabled={cepLoading || cep.replace(/\D/g, "").length !== 8}
+                    className="h-11 px-3 rounded-xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-40"
+                  >
+                    {cepLoading ? "..." : "Buscar"}
+                  </button>
                 </div>
-                <div className="flex gap-2"><input value={street} onChange={(event) => setStreet(event.target.value)} placeholder="Rua" className="flex-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" /><input value={houseNumber} onChange={(event) => setHouseNumber(event.target.value)} placeholder="Número" className="w-24 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" /></div>
-                <input value={neighborhood} onChange={(event) => setNeighborhood(event.target.value)} placeholder="Bairro" className="w-full h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" />
-                <div className="flex gap-2"><input value={city} onChange={(event) => setCity(event.target.value)} placeholder="Cidade" className="flex-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" /><input value={state} onChange={(event) => setState(event.target.value.toUpperCase().slice(0, 2))} placeholder="UF" className="w-20 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" /></div>
-                <button onClick={saveAddress} disabled={savingAddress} className="w-full h-11 rounded-xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50">{savingAddress ? "Salvando..." : "Salvar endereço"}</button>
+                <div className="flex gap-2">
+                  <input
+                    value={street}
+                    onChange={(event) => setStreet(event.target.value)}
+                    placeholder="Rua"
+                    className="flex-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                  />
+                  <input
+                    value={houseNumber}
+                    onChange={(event) => setHouseNumber(event.target.value)}
+                    placeholder="Número"
+                    className="w-24 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                  />
+                </div>
+                <input
+                  value={neighborhood}
+                  onChange={(event) => setNeighborhood(event.target.value)}
+                  placeholder="Bairro"
+                  className="w-full h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                />
+                <div className="flex gap-2">
+                  <input
+                    value={city}
+                    onChange={(event) => setCity(event.target.value)}
+                    placeholder="Cidade"
+                    className="flex-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                  />
+                  <input
+                    value={state}
+                    onChange={(event) => setState(event.target.value.toUpperCase().slice(0, 2))}
+                    placeholder="UF"
+                    className="w-20 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                  />
+                </div>
+                <button
+                  onClick={saveAddress}
+                  disabled={savingAddress}
+                  className="w-full h-11 rounded-xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50"
+                >
+                  {savingAddress ? "Salvando..." : "Salvar endereço"}
+                </button>
               </div>
             ) : (
               <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-primary mt-0.5" />
-                <div className="text-sm"><p className="font-semibold">{provider?.street ? `${provider.street}, ${provider.number ?? "s/n"}` : "Endereço ainda não cadastrado"}</p><p className="text-muted-foreground">{[provider?.neighborhood, provider?.city, provider?.state].filter(Boolean).join(" — ") || "Complete seu endereço para receber pedidos próximos."}</p>{provider?.cep && <p className="text-xs text-muted-foreground mt-1">CEP {formatCep(provider.cep)}</p>}</div>
+                <div className="text-sm">
+                  <p className="font-semibold">
+                    {provider?.street
+                      ? `${provider.street}, ${provider.number ?? "s/n"}`
+                      : "Endereço ainda não cadastrado"}
+                  </p>
+                  <p className="text-muted-foreground">
+                    {[provider?.neighborhood, provider?.city, provider?.state]
+                      .filter(Boolean)
+                      .join(" — ") || "Complete seu endereço para receber pedidos próximos."}
+                  </p>
+                  {provider?.cep && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      CEP {formatCep(provider.cep)}
+                    </p>
+                  )}
+                </div>
               </div>
             )}
           </div>

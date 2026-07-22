@@ -359,10 +359,32 @@ function RequestEdit() {
             })}
           </div>
           <div className="mt-3 p-4 rounded-2xl bg-card border border-border space-y-3">
-            <div><p className="font-semibold text-sm">Período em que estará em casa</p><p className="text-xs text-muted-foreground">O prestador verá esta janela de atendimento.</p></div>
+            <div>
+              <p className="font-semibold text-sm">Período em que estará em casa</p>
+              <p className="text-xs text-muted-foreground">
+                O prestador verá esta janela de atendimento.
+              </p>
+            </div>
             <div className="grid grid-cols-2 gap-2">
-              <label className="text-xs text-muted-foreground">De<input type="date" value={availabilityStart} onChange={(e) => setAvailabilityStart(e.target.value)} className="w-full mt-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" /></label>
-              <label className="text-xs text-muted-foreground">Até<input type="date" value={availabilityEnd} onChange={(e) => setAvailabilityEnd(e.target.value)} min={availabilityStart} className="w-full mt-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none" /></label>
+              <label className="text-xs text-muted-foreground">
+                De
+                <input
+                  type="date"
+                  value={availabilityStart}
+                  onChange={(e) => setAvailabilityStart(e.target.value)}
+                  className="w-full mt-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                />
+              </label>
+              <label className="text-xs text-muted-foreground">
+                Até
+                <input
+                  type="date"
+                  value={availabilityEnd}
+                  onChange={(e) => setAvailabilityEnd(e.target.value)}
+                  min={availabilityStart}
+                  className="w-full mt-1 h-11 px-3 rounded-xl bg-background border border-border text-sm outline-none"
+                />
+              </label>
             </div>
           </div>
         </section>

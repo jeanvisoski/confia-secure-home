@@ -107,7 +107,15 @@ function PublicProviderProfile() {
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
           <div className="relative flex flex-col items-center text-center">
             <div className="h-20 w-20 rounded-3xl bg-gradient-to-br from-sky-400 to-blue-600 border-4 border-white/20 overflow-hidden flex items-center justify-center text-2xl font-extrabold shadow-float">
-              {provider?.profiles?.avatar_url ? <img src={provider.profiles.avatar_url} alt={`Foto de ${name}`} className="h-full w-full object-cover" /> : name[0]?.toUpperCase()}
+              {provider?.profiles?.avatar_url ? (
+                <img
+                  src={provider.profiles.avatar_url}
+                  alt={`Foto de ${name}`}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                name[0]?.toUpperCase()
+              )}
             </div>
             <div className="flex items-center gap-1 mt-3">
               <p className="text-lg font-extrabold font-[Manrope]">{name}</p>

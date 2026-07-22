@@ -36,7 +36,10 @@ async function fetchChatsAsClient(userId: string): Promise<ChatSummary[]> {
       {
         id: string;
         conversations: { id: string } | null;
-        provider_profiles: { profile_id: string; profiles: { full_name: string | null; avatar_url: string | null } | null } | null;
+        provider_profiles: {
+          profile_id: string;
+          profiles: { full_name: string | null; avatar_url: string | null } | null;
+        } | null;
       }[]
     >();
   if (error) throw error;
@@ -104,16 +107,23 @@ function useMyChats(userId: string | undefined) {
       const { data: chatMessages, error } = await supabase
         .from("messages")
         .select("conversation_id, sender_id, body, created_at, read_at")
-        .in("conversation_id", chats.map((chat) => chat.conversationId))
+        .in(
+          "conversation_id",
+          chats.map((chat) => chat.conversationId),
+        )
         .order("created_at", { ascending: false });
       if (error) throw error;
       return chats
         .map((chat) => {
-          const inChat = (chatMessages ?? []).filter((message) => message.conversation_id === chat.conversationId);
+          const inChat = (chatMessages ?? []).filter(
+            (message) => message.conversation_id === chat.conversationId,
+          );
           return {
             ...chat,
             otherLastSeenAt: lastSeenByProfile.get(chat.otherProfileId) ?? null,
-            unreadCount: inChat.filter((message) => message.sender_id !== userId && !message.read_at).length,
+            unreadCount: inChat.filter(
+              (message) => message.sender_id !== userId && !message.read_at,
+            ).length,
             lastMessage: inChat[0]?.body ?? null,
           };
         })
@@ -208,13 +218,19 @@ function Messages() {
             <ChevronLeft className="h-5 w-5" />
           </button>
           <BrandLogo className="h-7 w-7 shrink-0" />
-          <ProfileAvatar name={openChat.otherName} src={openChat.otherAvatarUrl} className="h-9 w-9 rounded-full text-sm" />
+          <ProfileAvatar
+            name={openChat.otherName}
+            src={openChat.otherAvatarUrl}
+            className="h-9 w-9 rounded-full text-sm"
+          />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1">
               <p className="text-sm font-semibold truncate">{openChat.otherName}</p>
               <BadgeCheck className="h-4 w-4 text-trust" />
             </div>
-            <p className={`text-[11px] ${isOnline(openChat.otherLastSeenAt) ? "text-trust" : "text-muted-foreground"}`}>
+            <p
+              className={`text-[11px] ${isOnline(openChat.otherLastSeenAt) ? "text-trust" : "text-muted-foreground"}`}
+            >
               {presenceLabel(openChat.otherLastSeenAt)}
             </p>
           </div>
@@ -254,7 +270,12 @@ function Messages() {
             <Send className="h-4 w-4 text-primary-foreground" />
           </button>
         </div>
-        <button onClick={reportExternalPayment} className="absolute right-4 bottom-16 text-[11px] text-destructive font-semibold flex items-center gap-1"><AlertTriangle className="h-3.5 w-3.5" /> Denunciar pagamento externo</button>
+        <button
+          onClick={reportExternalPayment}
+          className="absolute right-4 bottom-16 text-[11px] text-destructive font-semibold flex items-center gap-1"
+        >
+          <AlertTriangle className="h-3.5 w-3.5" /> Denunciar pagamento externo
+        </button>
       </PhoneFrame>
     );
   }
@@ -290,13 +311,19 @@ function Messages() {
               onClick={() => setOpenId(c.conversationId)}
               className="w-full flex items-center gap-3 px-5 py-3 hover:bg-secondary/50 text-left"
             >
-              <ProfileAvatar name={c.otherName} src={c.otherAvatarUrl} className="h-12 w-12 rounded-full text-sm" />
+              <ProfileAvatar
+                name={c.otherName}
+                src={c.otherAvatarUrl}
+                className="h-12 w-12 rounded-full text-sm"
+              />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1">
                   <p className="text-sm font-semibold truncate">{c.otherName}</p>
                   <BadgeCheck className="h-4 w-4 text-trust shrink-0" />
                 </div>
-                <p className="text-xs text-muted-foreground truncate mt-0.5">{c.lastMessage ?? presenceLabel(c.otherLastSeenAt)}</p>
+                <p className="text-xs text-muted-foreground truncate mt-0.5">
+                  {c.lastMessage ?? presenceLabel(c.otherLastSeenAt)}
+                </p>
               </div>
               {c.unreadCount > 0 && (
                 <span className="min-w-5 h-5 px-1 rounded-full bg-trust text-primary-foreground text-[10px] font-bold flex items-center justify-center">

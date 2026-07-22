@@ -89,7 +89,8 @@ function Tracking() {
 
   const provider = order?.provider_profiles;
   const providerName = provider?.profiles?.full_name ?? "Prestador";
-  const canReviewCompletion = order?.status === "fotos_enviadas" || order?.status === "aguardando_confirmacao";
+  const canReviewCompletion =
+    order?.status === "fotos_enviadas" || order?.status === "aguardando_confirmacao";
   const address = order?.service_requests?.addresses;
   const liveLocation = order?.status === "a_caminho" ? order.order_provider_locations : null;
   const mapLat = address?.lat ?? liveLocation?.lat ?? provider?.lat ?? null;
@@ -111,7 +112,11 @@ function Tracking() {
         title={category}
         subtitle={orderId ? `Pedido #${orderId.slice(0, 8)}` : ""}
         back
-        right={<Link to="/orders" className="text-xs font-semibold text-primary px-1">Pedidos</Link>}
+        right={
+          <Link to="/orders" className="text-xs font-semibold text-primary px-1">
+            Pedidos
+          </Link>
+        }
       />
 
       <div className="flex-1 overflow-y-auto">
@@ -125,14 +130,20 @@ function Tracking() {
           />
           <div className="absolute bottom-3 left-3 right-3 bg-background/95 backdrop-blur rounded-2xl p-3 shadow-card flex items-center gap-2 text-xs">
             <div className="h-2 w-2 rounded-full bg-trust animate-pulse" />
-            <span className="font-semibold">{trackingMessage[order?.status ?? ""] ?? "Atualizando pedido..."}</span>
+            <span className="font-semibold">
+              {trackingMessage[order?.status ?? ""] ?? "Atualizando pedido..."}
+            </span>
           </div>
         </div>
 
         <div className="px-5 pt-4">
           <div className="rounded-2xl bg-card border border-border p-4 shadow-card">
             <div className="flex items-center gap-3">
-              <ProfileAvatar name={providerName} src={provider?.profiles?.avatar_url} className="h-12 w-12 rounded-2xl" />
+              <ProfileAvatar
+                name={providerName}
+                src={provider?.profiles?.avatar_url}
+                className="h-12 w-12 rounded-2xl"
+              />
               <div className="flex-1">
                 <div className="flex items-center gap-1">
                   <p className="font-semibold">{providerName}</p>

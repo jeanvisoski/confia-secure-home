@@ -39,7 +39,9 @@ type MyOrder = {
   status: string;
   created_at: string;
   service_requests: { service_categories: { label: string } | null } | null;
-  provider_profiles: { profiles: { full_name: string | null; avatar_url: string | null } | null } | null;
+  provider_profiles: {
+    profiles: { full_name: string | null; avatar_url: string | null } | null;
+  } | null;
 };
 
 function useMyOrders(clientId: string | undefined) {
@@ -193,7 +195,11 @@ function Orders() {
               search={{ orderId: o.id }}
               className="flex items-center gap-3 p-4 rounded-2xl bg-card border border-border shadow-card"
             >
-              <ProfileAvatar name={o.provider_profiles?.profiles?.full_name} src={o.provider_profiles?.profiles?.avatar_url} className="h-12 w-12 rounded-2xl text-sm" />
+              <ProfileAvatar
+                name={o.provider_profiles?.profiles?.full_name}
+                src={o.provider_profiles?.profiles?.avatar_url}
+                className="h-12 w-12 rounded-2xl text-sm"
+              />
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm truncate">
                   {o.service_requests?.service_categories?.label ?? "Serviço"}

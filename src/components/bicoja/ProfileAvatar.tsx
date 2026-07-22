@@ -23,7 +23,12 @@ export function ProfileAvatar({ name, src, className = "", alt }: ProfileAvatarP
       className={`shrink-0 overflow-hidden bg-gradient-to-br from-sky-400 to-blue-600 text-white flex items-center justify-center font-bold ${className}`}
     >
       {src && !imageFailed ? (
-        <img src={src} alt={alt ?? `Foto de ${name ?? "perfil"}`} className="h-full w-full object-cover" onError={() => setImageFailed(true)} />
+        <img
+          src={src}
+          alt={alt ?? `Foto de ${name ?? "perfil"}`}
+          className="h-full w-full object-cover"
+          onError={() => setImageFailed(true)}
+        />
       ) : (
         initials
       )}

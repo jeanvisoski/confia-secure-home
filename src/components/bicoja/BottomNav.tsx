@@ -1,5 +1,13 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Search, ClipboardList, MessageCircle, User, LayoutDashboard, Wallet } from "lucide-react";
+import {
+  Home,
+  Search,
+  ClipboardList,
+  MessageCircle,
+  User,
+  LayoutDashboard,
+  Wallet,
+} from "lucide-react";
 import type { ComponentType } from "react";
 
 type Item = { to: string; label: string; icon: ComponentType<{ className?: string }> };
@@ -35,10 +43,16 @@ export function BottomNav({ variant = "client" }: { variant?: "client" | "pro" }
               to={it.to}
               className="flex flex-col items-center gap-1 py-1.5 rounded-xl transition-colors"
             >
-              <div className={`flex items-center justify-center h-9 w-14 rounded-full transition-all ${active ? "bg-primary/10" : ""}`}>
+              <div
+                className={`flex items-center justify-center h-9 w-14 rounded-full transition-all ${active ? "bg-primary/10" : ""}`}
+              >
                 <Icon className={`h-5 w-5 ${active ? "text-primary" : "text-muted-foreground"}`} />
               </div>
-              <span className={`text-[10px] font-medium ${active ? "text-primary" : "text-muted-foreground"}`}>{it.label}</span>
+              <span
+                className={`text-[10px] font-medium ${active ? "text-primary" : "text-muted-foreground"}`}
+              >
+                {it.label}
+              </span>
             </Link>
           );
         })}
