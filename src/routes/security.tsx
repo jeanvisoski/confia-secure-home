@@ -17,6 +17,7 @@ function SecurityPage() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   async function changePassword(e: React.FormEvent) {
     e.preventDefault();
@@ -38,6 +39,25 @@ function SecurityPage() {
     setPassword("");
     setConfirm("");
     toast.success("Senha atualizada.");
+  }
+
+  async function deleteAccount() {
+    if (
+      !window.confirm(
+        "Deseja excluir sua conta? Seus dados pessoais serão removidos e esta ação não pode ser desfeita.",
+      )
+    )
+      return;
+    setDeleting(true);
+    const { error } = await supabase.functions.invoke("delete-account");
+    setDeleting(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    await supabase.auth.signOut();
+    toast.success("Conta excluída. Seus dados pessoais foram removidos.");
+    window.location.assign("/login");
   }
 
   return (
@@ -87,7 +107,22 @@ function SecurityPage() {
           </button>
         </form>
 
-        <p className="text-[11px] text-muted-foreground mt-6">
+        <section className="mt-8 rounded-2xl border border-destructive/25 bg-destructive/5 p-4">
+          <h2 className="text-sm font-bold text-destructive">Excluir conta</h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Seus dados pessoais, endereços e arquivos serão removidos. Dados mínimos de pedidos e
+            pagamentos podem ser mantidos anonimizados quando exigidos por lei.
+          </p>
+          <button
+            onClick={deleteAccount}
+            disabled={deleting}
+            className="mt-4 h-11 w-full rounded-xl border border-destructive text-sm font-semibold text-destructive disabled:opacity-50"
+          >
+            {deleting ? "Excluindo..." : "Excluir minha conta"}
+          </button>
+        </section>
+
+        <p className="hidden text-[11px] text-muted-foreground mt-6">
           Dados de privacidade e política de uso: leia nossos Termos e Política de Privacidade
           (links no cadastro). Exclusão de conta ainda não está disponível por aqui — fale com o
           suporte.

@@ -18,6 +18,7 @@ import { supabase } from "../lib/supabase";
 import { Toaster } from "../components/ui/sonner";
 import { AppErrorReporter } from "../components/bicoja/AppErrorReporter";
 import { BrandLogo } from "../components/bicoja/BrandLogo";
+import { NativeAppBridge } from "../components/bicoja/NativeAppBridge";
 
 const PUBLIC_PATHS = new Set(["/", "/login"]);
 
@@ -187,6 +188,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <SessionProvider>
         <AuthGate>
+          <NativeAppBridge />
           <AppErrorReporter />
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />

@@ -15,6 +15,7 @@ import { PhoneFrame } from "@/components/bicoja/PhoneFrame";
 import { AppHeader } from "@/components/bicoja/AppHeader";
 import { supabase } from "@/lib/supabase";
 
+import { openExternalCheckout } from "@/lib/native";
 export const Route = createFileRoute("/payment")({
   component: Payment,
   validateSearch: (search: Record<string, unknown>): { orderId?: string } => ({
@@ -112,7 +113,7 @@ function Payment() {
       toast.error(error?.message ?? "Nao foi possivel iniciar o checkout.");
       return;
     }
-    window.location.assign(data.checkoutUrl as string);
+    await openExternalCheckout(data.checkoutUrl as string);
   }
 
   const pixAvailable = settings?.pix_enabled ?? true;
