@@ -25,6 +25,12 @@
 - O reembolso automatico usa a transacao Mercado Pago registrada pelo checkout. A Edge Function deve estar publicada e os tokens devem estar configurados.
 - Para rodar tarefas sem nenhuma visita ao app, configure um agendador externo autenticado que invoque `complete_due_orders()` e `release_due_guarantee_wallet_transactions()` a cada hora.
 
+## Risco conhecido: integridade das migrations
+
+- Os arquivos `supabase/migrations/0013_provider_signup_address_avatar.sql`, `0019_conversations_backfill_and_trigger.sql` e `0037_bicoja_storage_branding.sql` estao corrompidos no repositorio (conteudo truncado a poucos bytes) desde o commit `9035c26`. Nao ha versao integra em nenhum outro lugar deste repo para restaurar via git.
+- O banco Supabase ja rodando **provavelmente nao e afetado** (a corrupcao esta so no arquivo `.sql`, nao em algo que foi reaplicado), mas replay destas migrations do zero (recriar o projeto Supabase, subir um ambiente novo) vai falhar em criar o que essas 3 migrations criavam.
+- Decisao registrada em 2026-07-22: aceitar o risco por ora, sem plano de recriar o Supabase no curto prazo. Se algum dia precisar recriar o ambiente, primeiro exporte o schema real (`supabase db pull` ou Dashboard) e reescreva esses 3 arquivos antes de rodar as migrations em um banco novo.
+
 ## Operacao e seguranca
 
 - Revise diariamente disputas, denuncias, documentos pendentes, saques e reembolsos.
