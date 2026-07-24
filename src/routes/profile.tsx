@@ -1,6 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { CreditCard, MapPin, Bell, HelpCircle, Shield, LogOut, ChevronRight } from "lucide-react";
+import {
+  CreditCard,
+  MapPin,
+  Bell,
+  HelpCircle,
+  Shield,
+  LogOut,
+  ChevronRight,
+  Sparkles,
+} from "lucide-react";
 import { PhoneFrame } from "@/components/bicoja/PhoneFrame";
 import { BottomNav } from "@/components/bicoja/BottomNav";
 import { TrustBadge } from "@/components/bicoja/TrustBadge";
@@ -20,7 +29,7 @@ function useProfile(userId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("full_name, email, avatar_url")
+        .select("full_name, email, avatar_url, is_provider")
         .eq("id", userId)
         .single();
       if (error) throw error;
@@ -90,6 +99,24 @@ function Profile() {
             <Item icon={MapPin} label="Endereços" desc={`${addressCount} salvos`} to="/addresses" />
             <Item icon={Bell} label="Notificações" to="/notifications" />
           </div>
+
+          {!profile?.is_provider && (
+            <Link
+              to="/become-provider"
+              className="mt-6 flex items-center gap-3 rounded-2xl bg-hero text-primary-foreground p-4 shadow-card"
+            >
+              <div className="h-10 w-10 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold">Quer também oferecer serviços?</p>
+                <p className="text-xs opacity-80 mt-0.5">
+                  Torne-se prestador sem perder sua conta de cliente.
+                </p>
+              </div>
+              <ChevronRight className="h-4 w-4 shrink-0" />
+            </Link>
+          )}
 
           <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground px-2 mb-2 mt-6">
             Suporte

@@ -27,6 +27,7 @@ import { getCurrentPosition, reverseGeocode } from "@/lib/geocode";
 import { categoryIcon, useCategories } from "@/lib/categories";
 import { CLIENT_TERMS_VERSION, PROVIDER_TERMS_VERSION } from "@/lib/terms-versions";
 import { isInsideActiveServiceArea, useLaunchRegionSettings } from "@/lib/launch-regions";
+import { getViewMode, setViewMode } from "@/lib/view-mode";
 
 export const Route = createFileRoute("/login")({
   component: Login,
@@ -333,9 +334,11 @@ function Login() {
           return;
         }
         setSending(false);
+        setViewMode("prestador");
         nav({ to: "/pro" });
       } else {
         setSending(false);
+        setViewMode("cliente");
         nav({ to: "/home" });
       }
     } else {
@@ -350,7 +353,11 @@ function Login() {
         .select("profile_id")
         .eq("profile_id", (await supabase.auth.getUser()).data.user?.id ?? "")
         .maybeSingle();
-      nav({ to: provider ? "/pro" : "/home" });
+      // Se a conta é cliente e prestador ao mesmo tempo, respeita a última
+      // visão que a pessoa escolheu em vez de sempre cair no painel de
+      // prestador.
+      const preferredMode = getViewMode();
+      nav({ to: provider && preferredMode !== "cliente" ? "/pro" : "/home" });
     }
   }
 

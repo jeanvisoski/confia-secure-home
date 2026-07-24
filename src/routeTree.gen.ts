@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AddressesRouteImport } from './routes/addresses'
+import { Route as BecomeProviderRouteImport } from './routes/become-provider'
 import { Route as ConfirmRouteImport } from './routes/confirm'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as HomeRouteImport } from './routes/home'
@@ -47,6 +48,11 @@ const IndexRoute = IndexRouteImport.update({
 const AddressesRoute = AddressesRouteImport.update({
   id: '/addresses',
   path: '/addresses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BecomeProviderRoute = BecomeProviderRouteImport.update({
+  id: '/become-provider',
+  path: '/become-provider',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfirmRoute = ConfirmRouteImport.update({
@@ -188,6 +194,7 @@ const ProvidersProviderIdRoute = ProvidersProviderIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/addresses': typeof AddressesRoute
+  '/become-provider': typeof BecomeProviderRoute
   '/confirm': typeof ConfirmRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
@@ -219,6 +226,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/addresses': typeof AddressesRoute
+  '/become-provider': typeof BecomeProviderRoute
   '/confirm': typeof ConfirmRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
@@ -250,6 +258,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/addresses': typeof AddressesRoute
+  '/become-provider': typeof BecomeProviderRoute
   '/confirm': typeof ConfirmRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
@@ -283,6 +292,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/addresses'
+    | '/become-provider'
     | '/confirm'
     | '/help'
     | '/home'
@@ -314,6 +324,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/addresses'
+    | '/become-provider'
     | '/confirm'
     | '/help'
     | '/home'
@@ -344,6 +355,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/addresses'
+    | '/become-provider'
     | '/confirm'
     | '/help'
     | '/home'
@@ -376,6 +388,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AddressesRoute: typeof AddressesRoute
+  BecomeProviderRoute: typeof BecomeProviderRoute
   ConfirmRoute: typeof ConfirmRoute
   HelpRoute: typeof HelpRoute
   HomeRoute: typeof HomeRoute
@@ -414,6 +427,13 @@ declare module '@tanstack/react-router' {
       path: '/addresses'
       fullPath: '/addresses'
       preLoaderRoute: typeof AddressesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/become-provider': {
+      id: '/become-provider'
+      path: '/become-provider'
+      fullPath: '/become-provider'
+      preLoaderRoute: typeof BecomeProviderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/confirm': {
@@ -629,6 +649,7 @@ const ProRouteWithChildren = ProRoute._addFileChildren(ProRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AddressesRoute: AddressesRoute,
+  BecomeProviderRoute: BecomeProviderRoute,
   ConfirmRoute: ConfirmRoute,
   HelpRoute: HelpRoute,
   HomeRoute: HomeRoute,

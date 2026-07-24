@@ -281,20 +281,16 @@ function ProDashboard() {
       <PhoneFrame>
         <div className="flex-1 flex flex-col items-center justify-center px-8 text-center gap-4">
           <ShieldCheck className="h-12 w-12 text-muted-foreground" />
-          <p className="font-semibold">Esta conta não é de prestador</p>
+          <p className="font-semibold">Esta conta ainda não é de prestador</p>
           <p className="text-sm text-muted-foreground">
-            Contas de cliente e de prestador são separadas. Para oferecer serviços na BICOJÁ, saia
-            desta conta e crie uma conta nova escolhendo "Quero oferecer serviços".
+            Você pode tornar-se prestador sem perder sua conta de cliente.
           </p>
-          <button
-            onClick={async () => {
-              await supabase.auth.signOut();
-              nav({ to: "/login" });
-            }}
+          <Link
+            to="/become-provider"
             className="h-12 px-6 rounded-2xl bg-primary text-primary-foreground font-semibold flex items-center justify-center"
           >
-            Sair e criar conta de prestador
-          </button>
+            Tornar-se prestador
+          </Link>
         </div>
       </PhoneFrame>
     );
