@@ -244,7 +244,9 @@ function RequestFlow() {
       neighborhood.trim() &&
       city.trim() &&
       state.trim() &&
-      areaAvailable) ||
+      areaAvailable &&
+      lat != null &&
+      lng != null) ||
     (step === 4 &&
       urgency &&
       availabilityStartTime &&
@@ -625,6 +627,21 @@ function RequestFlow() {
                     className="w-20 h-11 px-3 rounded-xl bg-card border border-border text-sm outline-none"
                   />
                 </div>
+                {street.trim() && city.trim() && lat == null && lng == null && (
+                  <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-3">
+                    <p className="text-xs text-destructive">
+                      Não conseguimos confirmar a localização exata deste endereço. Sem isso, o
+                      pedido não aparece para os prestadores.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={locateMe}
+                      className="mt-2 text-xs font-semibold text-primary"
+                    >
+                      Usar minha localização (GPS)
+                    </button>
+                  </div>
+                )}
                 <button
                   onClick={() => setEditingAddress(false)}
                   className="text-primary text-xs font-semibold"
