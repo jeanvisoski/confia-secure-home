@@ -24,6 +24,23 @@ export const Route = createFileRoute("/payment")({
   head: () => ({ meta: [{ title: "Pagamento — BICOJÁ" }] }),
 });
 
+// supabase-js embrulha a resposta da Edge Function num erro genérico
+// ("Edge Function returned a non-2xx status code") -- o motivo real que a
+// function retorna (token ausente, valor recusado pelo Mercado Pago, etc.)
+// fica no corpo da resposta original, dentro de error.context.
+async function describeCheckoutError(error: unknown): Promise<string> {
+  const context = (error as { context?: unknown })?.context;
+  if (context instanceof Response) {
+    try {
+      const body = await context.clone().json();
+      if (typeof body?.error === "string") return body.error;
+    } catch {
+      // resposta sem corpo JSON -- cai no fallback abaixo.
+    }
+  }
+  return error instanceof Error ? error.message : "Nao foi possivel iniciar o checkout.";
+}
+
 function useOrder(orderId: string | undefined) {
   return useQuery({
     queryKey: ["order", orderId],
@@ -110,7 +127,7 @@ function Payment() {
     });
     setPaying(false);
     if (error || !data?.checkoutUrl) {
-      toast.error(error?.message ?? "Nao foi possivel iniciar o checkout.");
+      toast.error(await describeCheckoutError(error));
       return;
     }
     await openExternalCheckout(data.checkoutUrl as string);
@@ -172,8 +189,10 @@ function Payment() {
                 <CreditCard className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1 text-left">
-                <p className="font-semibold text-sm">Cartão •••• 4291</p>
-                <p className="text-xs text-muted-foreground">Vence em 08/28</p>
+                <p className="font-semibold text-sm">Cartão de crédito</p>
+                <p className="text-xs text-muted-foreground">
+                  Você informa os dados no checkout do Mercado Pago
+                </p>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </button>
