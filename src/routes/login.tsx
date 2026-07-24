@@ -728,6 +728,41 @@ function Login() {
             </>
           )}
 
+          {mode === "criar" && (
+            <label className="flex items-start gap-2 text-[11px] text-muted-foreground mt-3 leading-relaxed text-left">
+              <input
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                className="mt-0.5"
+              />{" "}
+              <span>
+                Li e aceito os{" "}
+                <Link to="/terms" className="text-primary font-semibold">
+                  Termos de Uso e regras de pagamento protegido
+                </Link>
+                .
+              </span>
+            </label>
+          )}
+          {mode === "criar" && role === "prestador" && (
+            <label className="flex items-start gap-2 text-[11px] text-muted-foreground leading-relaxed text-left">
+              <input
+                type="checkbox"
+                checked={providerTermsAccepted}
+                onChange={(e) => setProviderTermsAccepted(e.target.checked)}
+                className="mt-0.5"
+              />{" "}
+              <span>
+                Li e aceito o{" "}
+                <Link to="/provider-terms" className="text-primary font-semibold">
+                  Contrato de Prestação de Serviço Autônomo
+                </Link>
+                .
+              </span>
+            </label>
+          )}
+
           <button
             type="submit"
             disabled={sending}
@@ -755,40 +790,6 @@ function Login() {
           {mode === "entrar" ? "Ainda não tem conta? Criar conta" : "Já tem conta? Entrar"}
         </button>
 
-        {mode === "criar" && (
-          <label className="flex items-start gap-2 text-[11px] text-muted-foreground mt-5 leading-relaxed text-left">
-            <input
-              type="checkbox"
-              checked={termsAccepted}
-              onChange={(e) => setTermsAccepted(e.target.checked)}
-              className="mt-0.5"
-            />{" "}
-            <span>
-              Li e aceito os{" "}
-              <Link to="/terms" className="text-primary font-semibold">
-                Termos de Uso e regras de pagamento protegido
-              </Link>
-              .
-            </span>
-          </label>
-        )}
-        {mode === "criar" && role === "prestador" && (
-          <label className="flex items-start gap-2 text-[11px] text-muted-foreground mt-3 leading-relaxed text-left">
-            <input
-              type="checkbox"
-              checked={providerTermsAccepted}
-              onChange={(e) => setProviderTermsAccepted(e.target.checked)}
-              className="mt-0.5"
-            />{" "}
-            <span>
-              Li e aceito o{" "}
-              <Link to="/provider-terms" className="text-primary font-semibold">
-                Contrato de Prestação de Serviço Autônomo
-              </Link>
-              .
-            </span>
-          </label>
-        )}
         <p className="text-[11px] text-muted-foreground text-center mt-3 leading-relaxed">
           Ao continuar você concorda com nossos{" "}
           <span className="text-primary font-medium">Termos</span> e{" "}
