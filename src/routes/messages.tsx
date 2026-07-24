@@ -10,6 +10,7 @@ import { useSession } from "@/lib/session-context";
 import { ProfileAvatar } from "@/components/bicoja/ProfileAvatar";
 import { AppHeader } from "@/components/bicoja/AppHeader";
 import { BrandLogo } from "@/components/bicoja/BrandLogo";
+import { getViewMode } from "@/lib/view-mode";
 
 export const Route = createFileRoute("/messages")({
   component: Messages,
@@ -334,7 +335,7 @@ function Messages() {
           ))}
         </div>
       </div>
-      <BottomNav />
+      <BottomNav variant={getViewMode() === "prestador" ? "pro" : "client"} />
     </PhoneFrame>
   );
 }
